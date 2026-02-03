@@ -1,216 +1,69 @@
+# React Native Starter
+
 <div align="center">
 
-# ⚡ ReactNativeStarter
+![React Native](https://img.shields.io/badge/React_Native-0.74-61DAFB?style=for-the-badge&logo=react&logoColor=white)
+![Expo](https://img.shields.io/badge/Expo-SDK_51-000020?style=for-the-badge&logo=expo&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.0-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
+![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)
 
-### Enterprise-grade React Native boilerplate with Expo Router, Zustand & React Query
+**Enterprise-grade React Native boilerplate with Expo Router, Zustand, React Query, and Reanimated**
 
-[![MIT License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.6-blue?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
-[![Expo](https://img.shields.io/badge/Expo-52-000020?logo=expo&logoColor=white)](https://expo.dev/)
-[![React Native](https://img.shields.io/badge/React%20Native-0.76-61DAFB?logo=react&logoColor=white)](https://reactnative.dev/)
-[![Zustand](https://img.shields.io/badge/Zustand-5.0-brown)](https://zustand-demo.pmnd.rs/)
-[![React Query](https://img.shields.io/badge/React%20Query-5.x-FF4154?logo=reactquery&logoColor=white)](https://tanstack.com/query)
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
-[![GitHub Stars](https://img.shields.io/github/stars/muhittincamdali/ReactNativeStarter?style=social)](https://github.com/muhittincamdali/ReactNativeStarter)
-
-**Stop wasting days on project setup. Start building features in minutes.**
-
-[Getting Started](#-getting-started) · [Architecture](#-architecture) · [Features](#-features) · [Documentation](#-documentation)
+[Getting Started](#-getting-started) •
+[Features](#-features) •
+[Architecture](#-architecture) •
+[Documentation](#-documentation)
 
 </div>
 
 ---
 
-## 🎯 Why ReactNativeStarter?
+## 📱 Overview
 
-Every time you start a new React Native project, you end up spending days configuring the same things — navigation, state management, API layers, theming, storage. This boilerplate eliminates that overhead entirely.
+React Native Starter is a production-ready boilerplate that provides everything you need to build scalable, maintainable mobile applications. It follows industry best practices and includes a comprehensive set of features commonly needed in modern apps.
 
-**ReactNativeStarter** gives you a production-ready foundation with battle-tested patterns used in apps serving millions of users.
+### Why This Boilerplate?
 
-### What's Inside
-
-| Category | Technology | Why |
-|----------|-----------|-----|
-| **Framework** | Expo SDK 52 | Managed workflow, OTA updates, EAS Build |
-| **Navigation** | Expo Router 4 | File-based routing, typed routes, deep linking |
-| **State** | Zustand 5 | Minimal boilerplate, great DX, tiny bundle |
-| **Server State** | React Query 5 | Caching, background refetch, optimistic updates |
-| **Storage** | MMKV + SecureStore | Blazing fast KV store + encrypted secrets |
-| **Styling** | StyleSheet + Theming | Dark/light mode, design tokens, no runtime cost |
-| **HTTP** | Axios | Interceptors, retry logic, token refresh |
-| **Validation** | Zod | Runtime type validation, form schemas |
-| **i18n** | Custom lightweight | English + Turkish out of the box |
-| **Animations** | Reanimated 3 | 60fps native animations on UI thread |
+- **Production Ready**: Battle-tested patterns used in real-world applications
+- **Type Safe**: Full TypeScript support with strict type checking
+- **Scalable Architecture**: MVVM pattern with clean separation of concerns
+- **Modern Stack**: Latest versions of Expo, React Native, and ecosystem tools
+- **Developer Experience**: Hot reload, debugging tools, and comprehensive documentation
 
 ---
 
 ## ✨ Features
 
-- 🗂️ **File-based routing** with Expo Router — no manual route config
-- 🔐 **Authentication flow** — login, register, token management, auto-refresh
-- 🌙 **Dark/Light theme** — system-aware with manual override
-- 📦 **Zustand stores** — auth + app settings with MMKV persistence
-- 🌐 **API client** — Axios with interceptors, retry, error handling
-- 🔄 **React Query hooks** — cached data fetching with loading states
-- 💾 **MMKV storage** — 30x faster than AsyncStorage
-- 🔒 **Secure storage** — encrypted storage for sensitive data
-- 🌍 **Internationalization** — EN/TR with easy extension
-- 🎨 **Design system** — colors, typography, spacing tokens
-- 📱 **Reusable components** — Button, Input, Card, Avatar, LoadingOverlay
-- 🛡️ **Error boundary** — graceful error handling with recovery
-- ✅ **Form validation** — email, password, phone validators
-- 🧪 **Testing setup** — Jest + Testing Library configured
-- 📐 **Strict TypeScript** — full type safety across the codebase
-- 🔧 **ESLint + Prettier** — consistent code style enforced
-- 🚀 **CI/CD ready** — GitHub Actions workflow included
-- 📋 **Conventional commits** — standardized commit messages
+### Core Features
 
----
+| Feature | Description |
+|---------|-------------|
+| 🔐 **Authentication** | Complete auth flow with login, register, password reset, and social login |
+| 📱 **Navigation** | Type-safe navigation with Expo Router and deep linking |
+| 🎨 **Theming** | Light/dark mode with system preference detection |
+| 📦 **State Management** | Zustand stores with persistence and devtools |
+| 🌐 **API Client** | Axios-based client with interceptors and retry logic |
+| 🔔 **Push Notifications** | Expo Notifications with local scheduling |
+| 💾 **Storage** | AsyncStorage and SecureStorage wrappers |
+| 🎭 **Animations** | React Native Reanimated for smooth 60fps animations |
 
-## 🏗️ Architecture
+### UI Components
 
-```mermaid
-graph TB
-    subgraph Presentation["📱 Presentation Layer"]
-        Screens["Screens<br/>(app/ directory)"]
-        Components["Reusable Components<br/>(components/)"]
-    end
+- **Button**: Multiple variants (primary, secondary, outline, ghost, danger)
+- **Input**: Text input with validation, icons, and error states
+- **Card**: Flexible card component with elevation and variants
+- **Avatar**: User avatars with fallback initials
+- **Loading**: Customizable loading indicators
+- **Header**: Navigation header with actions
+- **TabBar**: Custom bottom tab bar with badges
 
-    subgraph State["🧠 State Management"]
-        Zustand["Zustand Stores<br/>(stores/)"]
-        ReactQuery["React Query<br/>(hooks/useApi)"]
-    end
+### Developer Tools
 
-    subgraph Core["⚙️ Core Layer"]
-        API["API Client<br/>(core/api/)"]
-        Theme["Theme Provider<br/>(core/theme/)"]
-        Storage["Storage<br/>(core/storage/)"]
-        I18n["i18n<br/>(core/i18n/)"]
-    end
-
-    subgraph External["☁️ External"]
-        Backend["REST API"]
-        Device["Device Storage"]
-    end
-
-    Screens --> Components
-    Screens --> Zustand
-    Screens --> ReactQuery
-    Zustand --> Storage
-    ReactQuery --> API
-    API --> Backend
-    Storage --> Device
-    Theme --> Screens
-    I18n --> Screens
-
-    style Presentation fill:#1a1a2e,stroke:#e94560,color:#fff
-    style State fill:#16213e,stroke:#0f3460,color:#fff
-    style Core fill:#0f3460,stroke:#533483,color:#fff
-    style External fill:#533483,stroke:#e94560,color:#fff
-```
-
-### Data Flow
-
-```mermaid
-sequenceDiagram
-    participant U as User
-    participant S as Screen
-    participant H as Hook
-    participant RQ as React Query
-    participant A as API Client
-    participant B as Backend
-
-    U->>S: Interaction
-    S->>H: useAuth / useApi
-    H->>RQ: query / mutation
-    RQ->>A: HTTP Request
-    A->>A: Add Auth Token
-    A->>B: API Call
-    B-->>A: Response
-    A-->>A: Transform Data
-    A-->>RQ: Parsed Response
-    RQ-->>H: Cached Data
-    H-->>S: Updated State
-    S-->>U: Re-render
-```
-
----
-
-## 📁 Project Structure
-
-```
-ReactNativeStarter/
-├── src/
-│   ├── app/                      # Expo Router pages
-│   │   ├── _layout.tsx           # Root layout (providers, fonts)
-│   │   ├── (tabs)/               # Tab navigation group
-│   │   │   ├── _layout.tsx       # Tab bar configuration
-│   │   │   ├── index.tsx         # Home screen
-│   │   │   └── profile.tsx       # Profile screen
-│   │   └── (auth)/               # Auth flow group
-│   │       ├── _layout.tsx       # Auth layout
-│   │       ├── login.tsx         # Login screen
-│   │       └── register.tsx      # Register screen
-│   ├── components/               # Reusable UI components
-│   │   ├── Button.tsx            # Configurable button
-│   │   ├── Input.tsx             # Text input with validation
-│   │   ├── Card.tsx              # Content card
-│   │   ├── Avatar.tsx            # User avatar
-│   │   ├── LoadingOverlay.tsx    # Full-screen loader
-│   │   └── ErrorBoundary.tsx     # Error boundary wrapper
-│   ├── core/                     # Core infrastructure
-│   │   ├── api/
-│   │   │   ├── client.ts         # Axios instance + config
-│   │   │   └── interceptors.ts   # Request/response interceptors
-│   │   ├── storage/
-│   │   │   ├── mmkv.ts           # MMKV wrapper
-│   │   │   └── secure-storage.ts # Encrypted storage
-│   │   ├── theme/
-│   │   │   ├── colors.ts         # Color palette
-│   │   │   ├── typography.ts     # Font scales
-│   │   │   ├── spacing.ts        # Spacing tokens
-│   │   │   └── ThemeProvider.tsx  # Theme context
-│   │   └── i18n/
-│   │       ├── index.ts          # i18n engine
-│   │       ├── en.ts             # English strings
-│   │       └── tr.ts             # Turkish strings
-│   ├── stores/                   # Zustand stores
-│   │   ├── auth.store.ts         # Authentication state
-│   │   └── app.store.ts          # App preferences
-│   ├── hooks/                    # Custom hooks
-│   │   ├── useAuth.ts            # Auth operations
-│   │   ├── useApi.ts             # React Query wrappers
-│   │   └── useStorage.ts         # Storage helpers
-│   ├── utils/                    # Utility functions
-│   │   ├── validators.ts         # Input validation
-│   │   └── formatters.ts         # Data formatting
-│   └── types/                    # TypeScript definitions
-│       ├── api.types.ts          # API response types
-│       └── navigation.types.ts   # Route params
-├── __tests__/                    # Test files
-│   ├── stores/
-│   │   └── auth.store.test.ts
-│   └── utils/
-│       └── validators.test.ts
-├── assets/                       # Static assets
-├── .github/                      # GitHub configuration
-│   ├── workflows/ci.yml          # CI pipeline
-│   ├── ISSUE_TEMPLATE/           # Issue templates
-│   ├── PULL_REQUEST_TEMPLATE.md
-│   └── dependabot.yml
-├── app.json                      # Expo config
-├── babel.config.js               # Babel config
-├── metro.config.js               # Metro bundler config
-├── tsconfig.json                 # TypeScript config
-├── .eslintrc.js                  # ESLint rules
-├── .prettierrc                   # Prettier config
-├── package.json
-├── CONTRIBUTING.md
-├── CHANGELOG.md
-├── CODE_OF_CONDUCT.md
-├── SECURITY.md
-└── LICENSE
-```
+- Jest testing setup with React Native Testing Library
+- ESLint and Prettier configuration
+- Husky pre-commit hooks
+- Path aliases for clean imports
+- Environment variable support
 
 ---
 
@@ -218,24 +71,25 @@ ReactNativeStarter/
 
 ### Prerequisites
 
-- **Node.js** 20 or later
-- **npm** 10+ or **yarn** 4+
-- **Expo CLI**: `npm install -g expo-cli`
-- **iOS**: Xcode 15+ (macOS only)
-- **Android**: Android Studio with SDK 34+
+- Node.js 18+ 
+- npm or yarn
+- Expo CLI (`npm install -g expo-cli`)
+- iOS Simulator (macOS) or Android Studio
 
 ### Installation
 
 ```bash
 # Clone the repository
 git clone https://github.com/muhittincamdali/ReactNativeStarter.git
+
+# Navigate to project directory
 cd ReactNativeStarter
 
 # Install dependencies
 npm install
 
 # Start the development server
-npx expo start
+npm start
 ```
 
 ### Running on Devices
@@ -247,11 +101,8 @@ npm run ios
 # Android Emulator
 npm run android
 
-# Web browser
+# Web (experimental)
 npm run web
-
-# Physical device - scan QR code with Expo Go
-npx expo start
 ```
 
 ### Environment Setup
@@ -259,26 +110,113 @@ npx expo start
 Create a `.env` file in the project root:
 
 ```env
-# API Configuration
-API_BASE_URL=https://api.yourapp.com/v1
-API_TIMEOUT=30000
-
-# Feature Flags
-ENABLE_BIOMETRIC_AUTH=true
-ENABLE_PUSH_NOTIFICATIONS=true
-ENABLE_ANALYTICS=false
-
-# Environment
-APP_ENV=development
+EXPO_PUBLIC_API_URL=https://api.yourapp.com
+EXPO_PUBLIC_SENTRY_DSN=your-sentry-dsn
 ```
 
 ---
 
-## 📖 Usage
+## 🏗 Architecture
+
+### Project Structure
+
+```
+src/
+├── app/                    # App entry and providers
+│   ├── App.tsx            # Main app component
+│   ├── RootNavigator.tsx  # Navigation structure
+│   └── providers.tsx      # Context providers
+│
+├── screens/               # Screen components
+│   ├── auth/             # Authentication screens
+│   ├── home/             # Home and feed screens
+│   ├── profile/          # User profile screens
+│   └── settings/         # App settings screens
+│
+├── components/            # Reusable components
+│   ├── ui/               # Basic UI components
+│   ├── layout/           # Layout components
+│   └── forms/            # Form components
+│
+├── hooks/                 # Custom React hooks
+│   ├── useAuth.ts        # Authentication hook
+│   ├── useApi.ts         # API request hook
+│   ├── useStorage.ts     # Storage hook
+│   ├── useTheme.ts       # Theme hook
+│   └── useNotifications.ts
+│
+├── services/              # External services
+│   ├── api/              # API client and services
+│   ├── storage/          # Storage services
+│   └── notifications/    # Push notification service
+│
+├── store/                 # State management
+│   ├── store.ts          # Store configuration
+│   ├── authSlice.ts      # Auth state
+│   ├── userSlice.ts      # User state
+│   └── settingsSlice.ts  # Settings state
+│
+├── theme/                 # Theming
+│   ├── colors.ts         # Color palette
+│   ├── typography.ts     # Font styles
+│   └── spacing.ts        # Spacing scale
+│
+├── navigation/            # Navigation config
+│   ├── types.ts          # Navigation types
+│   └── linking.ts        # Deep linking config
+│
+├── utils/                 # Utility functions
+│   ├── validators.ts     # Form validation
+│   ├── formatters.ts     # Data formatters
+│   └── helpers.ts        # General helpers
+│
+└── types/                 # TypeScript types
+    ├── api.ts            # API types
+    └── models.ts         # Domain models
+```
+
+### Design Patterns
+
+#### MVVM Architecture
+
+Each screen follows the Model-View-ViewModel pattern:
+
+```
+screens/
+└── home/
+    ├── HomeScreen.tsx      # View
+    ├── HomeViewModel.ts    # ViewModel
+    └── components/         # Screen-specific components
+```
+
+#### State Management
+
+Zustand stores with slices for different domains:
+
+```typescript
+// authSlice.ts
+export const useAuthStore = create<AuthState>()(
+  devtools(
+    persist(
+      (set) => ({
+        user: null,
+        isAuthenticated: false,
+        setAuth: (data) => set({ ...data }),
+        clearAuth: () => set({ user: null, isAuthenticated: false }),
+      }),
+      { name: 'auth-storage' }
+    )
+  )
+);
+```
+
+---
+
+## 📚 Documentation
 
 ### Authentication
 
-The auth flow is managed through Zustand store + React Query:
+The auth flow supports email/password and social login:
 
 ```typescript
 import { useAuth } from '@/hooks/useAuth';
@@ -287,96 +225,68 @@ function LoginScreen() {
   const { login, isLoading, error } = useAuth();
 
   const handleLogin = async () => {
-    await login({
-      email: 'user@example.com',
-      password: 'securepassword',
-    });
+    await login(email, password);
   };
-
-  return (
-    <Button
-      title="Sign In"
-      loading={isLoading}
-      onPress={handleLogin}
-    />
-  );
 }
 ```
 
-### API Calls with React Query
+### API Requests
+
+Use the ApiClient for all HTTP requests:
 
 ```typescript
-import { useUsers, useCreateUser } from '@/hooks/useApi';
+import { ApiClient } from '@/services/api/ApiClient';
 
-function UserList() {
-  const { data: users, isLoading, refetch } = useUsers();
-  const { mutate: createUser } = useCreateUser();
+// GET request
+const users = await ApiClient.get<User[]>('/users');
 
-  return (
-    <FlatList
-      data={users}
-      refreshing={isLoading}
-      renderItem={({ item }) => <UserCard user={item} />}
-      onRefresh={refetch}
-    />
-  );
-}
+// POST request
+const newUser = await ApiClient.post<User>('/users', { name: 'John' });
 ```
 
-### Theme Usage
+### Theming
+
+Access theme values with the useTheme hook:
 
 ```typescript
-import { useTheme } from '@/core/theme/ThemeProvider';
+import { useTheme } from '@/hooks/useTheme';
 
 function MyComponent() {
-  const { colors, isDark, toggleTheme } = useTheme();
+  const { colors, spacing, typography } = useTheme();
 
   return (
     <View style={{ backgroundColor: colors.background }}>
-      <Text style={{ color: colors.text }}>
-        Current theme: {isDark ? 'Dark' : 'Light'}
-      </Text>
-      <Button title="Toggle" onPress={toggleTheme} />
+      <Text style={typography.headlineLarge}>Hello</Text>
     </View>
   );
 }
 ```
 
-### Storage
+### Navigation
+
+Type-safe navigation with TypeScript:
 
 ```typescript
-import { useStorage } from '@/hooks/useStorage';
+import { useNavigation } from '@react-navigation/native';
+import { HomeStackScreenProps } from '@/navigation/types';
 
-function Settings() {
-  const { getValue, setValue, removeValue } = useStorage();
-
-  // Fast key-value storage with MMKV
-  setValue('onboarding_completed', true);
-  const completed = getValue<boolean>('onboarding_completed');
-
-  // Encrypted storage for sensitive data
-  await secureStorage.set('auth_token', token);
+function MyScreen({ navigation }: HomeStackScreenProps<'HomeMain'>) {
+  navigation.navigate('Details', { id: '123' });
 }
 ```
 
-### Internationalization
+### Form Validation
+
+Built-in validators for common use cases:
 
 ```typescript
-import { useI18n } from '@/core/i18n';
+import { validateEmail, validatePassword, getPasswordStrength } from '@/utils/validators';
 
-function Welcome() {
-  const { t, locale, setLocale } = useI18n();
+const emailResult = validateEmail('test@example.com');
+// { isValid: true }
 
-  return (
-    <View>
-      <Text>{t('welcome.title')}</Text>
-      <Button
-        title="Türkçe"
-        onPress={() => setLocale('tr')}
-      />
-    </View>
-  );
-}
+const strength = getPasswordStrength('MyP@ssw0rd');
+// { score: 4, level: 'strong' }
 ```
 
 ---
@@ -387,140 +297,77 @@ function Welcome() {
 # Run all tests
 npm test
 
-# Watch mode
+# Run tests in watch mode
 npm run test:watch
 
-# Coverage report
+# Generate coverage report
 npm run test:coverage
-
-# Type checking
-npm run type-check
 ```
 
 ### Test Structure
 
-```typescript
-// __tests__/stores/auth.store.test.ts
-describe('AuthStore', () => {
-  it('should login successfully', async () => {
-    const { login, isAuthenticated } = useAuthStore.getState();
-    await login({ email: 'test@test.com', password: 'password' });
-    expect(isAuthenticated).toBe(true);
-  });
-});
+```
+__tests__/
+├── components/
+│   └── Button.test.tsx
+├── hooks/
+│   └── useAuth.test.ts
+└── utils/
+    ├── validators.test.ts
+    └── formatters.test.ts
 ```
 
 ---
 
-## 🏗️ Building for Production
+## 📦 Dependencies
 
-### Using EAS Build
+### Core
 
-```bash
-# Configure EAS
-npx eas-cli init
+| Package | Version | Purpose |
+|---------|---------|---------|
+| expo | ~51.0.0 | Expo SDK |
+| react-native | 0.74.x | React Native core |
+| typescript | ~5.3.0 | TypeScript support |
 
-# Build for iOS
-npm run build:ios
+### Navigation
 
-# Build for Android
-npm run build:android
+| Package | Purpose |
+|---------|---------|
+| @react-navigation/native | Navigation framework |
+| @react-navigation/native-stack | Stack navigator |
+| @react-navigation/bottom-tabs | Tab navigator |
 
-# Build both platforms
-npm run build:all
-```
+### State Management
 
-### OTA Updates
+| Package | Purpose |
+|---------|---------|
+| zustand | State management |
+| @tanstack/react-query | Server state management |
 
-```bash
-# Push an over-the-air update
-npm run update
-```
+### UI & Animation
 
----
+| Package | Purpose |
+|---------|---------|
+| react-native-reanimated | Animations |
+| react-native-gesture-handler | Gestures |
+| react-native-safe-area-context | Safe area |
+| @expo/vector-icons | Icons |
 
-## 🔧 Customization
+### Storage & Security
 
-### Adding a New Screen
-
-1. Create a file in `src/app/`:
-
-```typescript
-// src/app/settings.tsx
-export default function SettingsScreen() {
-  return <View><Text>Settings</Text></View>;
-}
-```
-
-2. That's it! Expo Router picks it up automatically.
-
-### Adding a New Store
-
-```typescript
-// src/stores/settings.store.ts
-import { create } from 'zustand';
-import { persist, createJSONStorage } from 'zustand/middleware';
-import { mmkvStorage } from '@/core/storage/mmkv';
-
-interface SettingsState {
-  notifications: boolean;
-  toggleNotifications: () => void;
-}
-
-export const useSettingsStore = create<SettingsState>()(
-  persist(
-    (set) => ({
-      notifications: true,
-      toggleNotifications: () =>
-        set((state) => ({ notifications: !state.notifications })),
-    }),
-    {
-      name: 'settings-storage',
-      storage: createJSONStorage(() => mmkvStorage),
-    },
-  ),
-);
-```
-
-### Adding a New API Endpoint
-
-```typescript
-// In hooks/useApi.ts
-export function useProducts() {
-  return useQuery({
-    queryKey: ['products'],
-    queryFn: () => apiClient.get<Product[]>('/products'),
-    staleTime: 5 * 60 * 1000,
-  });
-}
-```
-
-### Adding a New Language
-
-1. Create `src/core/i18n/de.ts` with translations
-2. Register it in `src/core/i18n/index.ts`
-3. Done — use `setLocale('de')` to switch
-
----
-
-## 📊 Performance
-
-| Metric | Value | Notes |
-|--------|-------|-------|
-| Cold start | ~800ms | Hermes engine + inline requires |
-| Storage read | ~0.015ms | MMKV vs ~5ms AsyncStorage |
-| Bundle size | ~2.8MB | Tree-shaken, minified |
-| JS thread FPS | 60fps | Animations on UI thread |
-| TTI | ~1.2s | Time to interactive |
+| Package | Purpose |
+|---------|---------|
+| @react-native-async-storage/async-storage | Async storage |
+| expo-secure-store | Secure storage |
 
 ---
 
 ## 🤝 Contributing
 
-Contributions are welcome! Please read the [Contributing Guide](CONTRIBUTING.md) before submitting a PR.
+Contributions are welcome! Please read our [Contributing Guide](CONTRIBUTING.md) for details.
 
 1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
 3. Commit your changes (`git commit -m 'feat: add amazing feature'`)
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
@@ -529,19 +376,15 @@ Contributions are welcome! Please read the [Contributing Guide](CONTRIBUTING.md)
 
 ## 📄 License
 
-This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ---
 
 ## 🙏 Acknowledgments
 
-See [ACKNOWLEDGMENTS.md](ACKNOWLEDGMENTS.md) for the full list of libraries and tools that make this project possible.
-
----
-
-## 📬 Support
-
-Having trouble? Check the [Support Guide](SUPPORT.md) or [open an issue](https://github.com/muhittincamdali/ReactNativeStarter/issues).
+- [Expo](https://expo.dev) for the amazing development platform
+- [React Native](https://reactnative.dev) community
+- All open source contributors
 
 ---
 
@@ -549,6 +392,6 @@ Having trouble? Check the [Support Guide](SUPPORT.md) or [open an issue](https:/
 
 **Built with ❤️ by [Muhittin Camdali](https://github.com/muhittincamdali)**
 
-If this project helped you, consider giving it a ⭐
+⭐ Star this repository if you find it helpful!
 
 </div>
