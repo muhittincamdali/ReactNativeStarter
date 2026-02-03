@@ -1,177 +1,80 @@
-# Contributing to ReactNativeStarter
+# Contributing to SwiftRouter
 
-First off, thanks for taking the time to contribute! 🎉
-
-The following is a set of guidelines for contributing to ReactNativeStarter. These are mostly guidelines, not rules. Use your best judgment, and feel free to propose changes to this document in a pull request.
-
-## Table of Contents
-
-- [Code of Conduct](#code-of-conduct)
-- [How Can I Contribute?](#how-can-i-contribute)
-- [Development Setup](#development-setup)
-- [Style Guidelines](#style-guidelines)
-- [Commit Messages](#commit-messages)
-- [Pull Requests](#pull-requests)
+First off, thank you for considering contributing to SwiftRouter! It's people like you that make SwiftRouter such a great tool.
 
 ## Code of Conduct
 
-This project and everyone participating in it is governed by the [Code of Conduct](CODE_OF_CONDUCT.md). By participating, you are expected to uphold this code.
+This project and everyone participating in it is governed by our Code of Conduct. By participating, you are expected to uphold this code.
 
 ## How Can I Contribute?
 
 ### Reporting Bugs
 
-Before creating bug reports, please check the existing issues. When you create a bug report, include as many details as possible:
+Before creating bug reports, please check the existing issues as you might find out that you don't need to create one. When you are creating a bug report, please include as many details as possible:
 
-- **Device/Simulator info** — iOS version, Android API level, device model
-- **Expo SDK version** — check with `npx expo --version`
-- **Steps to reproduce** — detailed steps to reproduce the behavior
-- **Expected behavior** — what you expected to happen
-- **Actual behavior** — what actually happened
-- **Screenshots/Videos** — if applicable
-- **Error logs** — Metro bundler output, device logs
+- **Use a clear and descriptive title**
+- **Describe the exact steps which reproduce the problem**
+- **Provide specific examples to demonstrate the steps**
+- **Describe the behavior you observed after following the steps**
+- **Explain which behavior you expected to see instead and why**
+- **Include Swift version and OS version**
 
-### Suggesting Features
+### Suggesting Enhancements
 
-Feature suggestions are tracked as GitHub issues. When creating a feature request:
+Enhancement suggestions are tracked as GitHub issues. When creating an enhancement suggestion, please include:
 
-- Use a clear and descriptive title
-- Provide a detailed description of the suggested enhancement
-- Explain why this feature would be useful
-- List any alternative solutions you've considered
+- **Use a clear and descriptive title**
+- **Provide a step-by-step description of the suggested enhancement**
+- **Provide specific examples to demonstrate the steps**
+- **Describe the current behavior and explain which behavior you expected to see instead**
+- **Explain why this enhancement would be useful**
 
 ### Pull Requests
 
 1. Fork the repo and create your branch from `main`
 2. If you've added code that should be tested, add tests
-3. Ensure the test suite passes (`npm test`)
-4. Make sure your code lints (`npm run lint`)
-5. Run type checking (`npm run type-check`)
-6. Update documentation if needed
+3. If you've changed APIs, update the documentation
+4. Ensure the test suite passes
+5. Make sure your code follows the existing style (SwiftLint)
+6. Issue that pull request!
 
 ## Development Setup
 
 ```bash
-# Fork and clone
-git clone https://github.com/your-username/ReactNativeStarter.git
-cd ReactNativeStarter
+# Clone your fork
+git clone https://github.com/YOUR_USERNAME/SwiftRouter.git
 
-# Install dependencies
-npm install
+# Navigate to the project
+cd SwiftRouter
 
-# Start development
-npx expo start
+# Open in Xcode
+open Package.swift
 
 # Run tests
-npm test
-
-# Lint
-npm run lint
-
-# Type check
-npm run type-check
+swift test
 ```
 
-## Style Guidelines
+## Style Guide
 
-### TypeScript
-
-- Use functional components with hooks
-- Prefer `const` over `let`, never use `var`
-- Use TypeScript strict mode — no `any` unless absolutely necessary
-- Use meaningful variable and function names
-- Keep functions small and focused
-- Use early returns to reduce nesting
-
-### File Naming
-
-- Components: `PascalCase.tsx` (e.g., `Button.tsx`)
-- Hooks: `camelCase.ts` with `use` prefix (e.g., `useAuth.ts`)
-- Stores: `camelCase.store.ts` (e.g., `auth.store.ts`)
-- Utils: `camelCase.ts` (e.g., `validators.ts`)
-- Types: `camelCase.types.ts` (e.g., `api.types.ts`)
-- Tests: `*.test.ts` or `*.test.tsx`
-
-### Component Structure
-
-```typescript
-// 1. Imports
-import { View, Text, StyleSheet } from 'react-native';
-
-// 2. Types/Interfaces
-interface Props {
-  title: string;
-  onPress: () => void;
-}
-
-// 3. Component
-export function MyComponent({ title, onPress }: Props) {
-  // hooks first
-  // handlers next
-  // render last
-  return (
-    <View style={styles.container}>
-      <Text>{title}</Text>
-    </View>
-  );
-}
-
-// 4. Styles
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-});
-```
+- Follow [Swift API Design Guidelines](https://swift.org/documentation/api-design-guidelines/)
+- Use SwiftLint for code style consistency
+- Write meaningful commit messages following [Conventional Commits](https://www.conventionalcommits.org/)
+- Document public APIs with DocC-compatible comments
 
 ## Commit Messages
 
-We follow [Conventional Commits](https://www.conventionalcommits.org/):
+We follow the [Conventional Commits](https://www.conventionalcommits.org/) specification:
 
-```
-type(scope): description
+- `feat:` A new feature
+- `fix:` A bug fix
+- `docs:` Documentation only changes
+- `style:` Code style changes (formatting, semicolons, etc)
+- `refactor:` Code change that neither fixes a bug nor adds a feature
+- `test:` Adding missing tests
+- `chore:` Changes to the build process or auxiliary tools
 
-[optional body]
-[optional footer]
-```
+Example: `feat(deeplink): add universal link support`
 
-### Types
+## License
 
-| Type | Description |
-|------|-------------|
-| `feat` | A new feature |
-| `fix` | A bug fix |
-| `docs` | Documentation changes |
-| `style` | Code style changes (formatting, etc.) |
-| `refactor` | Code refactoring |
-| `test` | Adding or updating tests |
-| `chore` | Maintenance tasks |
-| `perf` | Performance improvements |
-| `ci` | CI/CD changes |
-
-### Examples
-
-```
-feat(auth): add biometric login support
-fix(api): handle token refresh race condition
-docs(readme): update installation instructions
-test(validators): add email validation edge cases
-```
-
-## Pull Request Process
-
-1. Update the README.md with details of changes if needed
-2. Update the CHANGELOG.md under "Unreleased"
-3. The PR title should follow conventional commit format
-4. Link any related issues in the PR description
-5. Request review from at least one maintainer
-
-### PR Template
-
-When you open a PR, you'll see a template. Please fill it out completely.
-
-## Questions?
-
-Feel free to [open an issue](https://github.com/muhittincamdali/ReactNativeStarter/issues) or reach out if you have any questions.
-
-Thank you for contributing! 🙌
+By contributing, you agree that your contributions will be licensed under the MIT License.
