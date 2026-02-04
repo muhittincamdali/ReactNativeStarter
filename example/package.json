@@ -1,0 +1,20 @@
+{
+  "name": "react-native-starter-example",
+  "version": "1.0.0",
+  "description": "Example app demonstrating ReactNativeStarter usage",
+  "main": "index.js",
+  "scripts": {
+    "start": "expo start",
+    "android": "expo start --android",
+    "ios": "expo start --ios",
+    "web": "expo start --web"
+  },
+  "dependencies": {
+    "expo": "~49.0.0",
+    "react": "18.2.0",
+    "react-native": "0.72.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.20.0"
+  }
+}
