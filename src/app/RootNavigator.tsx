@@ -27,6 +27,8 @@ import {
 import { LoginScreen } from '../screens/auth/LoginScreen';
 import { RegisterScreen } from '../screens/auth/RegisterScreen';
 import { HomeScreen } from '../screens/home/HomeScreen';
+import { ListScreen } from '../screens/list/ListScreen';
+import { DetailScreen } from '../screens/list/DetailScreen';
 import { ProfileScreen } from '../screens/profile/ProfileScreen';
 import { EditProfileScreen } from '../screens/profile/EditProfileScreen';
 import { SettingsScreen } from '../screens/settings/SettingsScreen';
@@ -101,9 +103,10 @@ function HomeNavigator(): React.JSX.Element {
       />
       <HomeStack.Screen
         name="Details"
-        component={DetailsScreen}
+        component={DetailScreen}
         options={({ route }) => ({
           title: route.params?.title || 'Details',
+          headerShown: false,
         })}
       />
       <HomeStack.Screen
@@ -197,7 +200,7 @@ function MainNavigator(): React.JSX.Element {
       />
       <MainTab.Screen
         name="Explore"
-        component={ExploreScreen}
+        component={ListScreen}
         options={{
           tabBarLabel: 'Explore',
           tabBarAccessibilityLabel: 'Explore tab',
@@ -237,34 +240,12 @@ function ForgotPasswordScreen(): React.JSX.Element {
   );
 }
 
-function DetailsScreen(): React.JSX.Element {
-  const { colors } = useTheme();
-  return (
-    <View style={[styles.placeholder, { backgroundColor: colors.background }]}>
-      <Text style={[styles.placeholderText, { color: colors.text }]}>
-        Details Screen
-      </Text>
-    </View>
-  );
-}
-
 function SearchScreen(): React.JSX.Element {
   const { colors } = useTheme();
   return (
     <View style={[styles.placeholder, { backgroundColor: colors.background }]}>
       <Text style={[styles.placeholderText, { color: colors.text }]}>
         Search Screen
-      </Text>
-    </View>
-  );
-}
-
-function ExploreScreen(): React.JSX.Element {
-  const { colors } = useTheme();
-  return (
-    <View style={[styles.placeholder, { backgroundColor: colors.background }]}>
-      <Text style={[styles.placeholderText, { color: colors.text }]}>
-        Explore Screen
       </Text>
     </View>
   );

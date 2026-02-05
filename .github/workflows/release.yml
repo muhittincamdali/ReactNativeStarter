@@ -1,0 +1,57 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Create Release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Generate changelog
+        id: changelog
+        run: |
+          PREVIOUS_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
+          CURRENT_TAG=${GITHUB_REF#refs/tags/}
+          
+          if [ -z "$PREVIOUS_TAG" ]; then
+            COMMITS=$(git log --pretty=format:"- %s (%h)" --no-merges HEAD)
+          else
+            COMMITS=$(git log --pretty=format:"- %s (%h)" --no-merges ${PREVIOUS_TAG}..HEAD)
+          fi
+          
+          echo "tag=$CURRENT_TAG" >> $GITHUB_OUTPUT
+          echo "COMMITS<<EOF" >> $GITHUB_ENV
+          echo "$COMMITS" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ steps.changelog.outputs.tag }}
+          name: Release ${{ steps.changelog.outputs.tag }}
+          body: |
+            ## What's Changed
+            
+            ${{ env.COMMITS }}
+            
+            ## Installation
+            
+            ```bash
+            git clone https://github.com/muhittincamdali/ReactNativeStarter.git
+            cd ReactNativeStarter
+            git checkout ${{ steps.changelog.outputs.tag }}
+            npm install
+            npm start
+            ```
+          draft: false
+          prerelease: ${{ contains(steps.changelog.outputs.tag, '-beta') || contains(steps.changelog.outputs.tag, '-rc') }}

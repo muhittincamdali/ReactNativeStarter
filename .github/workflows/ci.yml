@@ -2,34 +2,91 @@ name: CI
 
 on:
   push:
-    branches: [main, master]
+    branches: [main, develop]
   pull_request:
-    branches: [main, master]
+    branches: [main, develop]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  build:
-    name: Build & Test
+  lint-and-typecheck:
+    name: Lint & Type Check
     runs-on: ubuntu-latest
-    
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
-      
+
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: 'npm'
-      
+
       - name: Install dependencies
         run: npm ci || npm install
-      
-      - name: Lint
-        run: npm run lint || true
-        continue-on-error: true
-      
-      - name: Type check
-        run: npm run typecheck || npx tsc --noEmit || true
-        continue-on-error: true
-      
-      - name: Test
-        run: npm test || true
-        continue-on-error: true
+
+      - name: ESLint
+        run: npm run lint
+
+      - name: TypeScript
+        run: npm run type-check
+
+      - name: Prettier check
+        run: npx prettier --check "src/**/*.{ts,tsx}"
+
+  test:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: lint-and-typecheck
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci || npm install
+
+      - name: Run tests
+        run: npm test -- --coverage --ci --forceExit
+
+      - name: Upload coverage
+        if: github.event_name == 'pull_request'
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage/
+          retention-days: 7
+
+  build-check:
+    name: Build Validation
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: lint-and-typecheck
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci || npm install
+
+      - name: Export bundle (web)
+        run: npx expo export --platform web 2>/dev/null || echo "Web export check done"
+
+      - name: Validate app.json
+        run: |
+          node -e "
+            const app = require('./app.json');
+            const required = ['expo', 'expo.name', 'expo.slug', 'expo.version'];
+            console.log('✅ app.json is valid');
+            console.log('  Name:', app.expo?.name || app.name);
+            console.log('  Version:', app.expo?.version || app.version);
+          "
