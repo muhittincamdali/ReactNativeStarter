@@ -26,6 +26,17 @@ Setting up a React Native project with proper architecture, auth flows, navigati
 
 ## ✨ Features
 
+---
+
+## 🚀 Performance First: The 2026 Standard
+While React Native is cross-platform, we enforce the same high-integrity performance standards as our native Swift flagships.
+
+- **Zero-Unnecessary-Bloat**: Every dependency is audited for binary size and runtime overhead.
+- **Native-Like Haptics**: Integrated with `expo-haptics` for tactile feedback.
+- **Calibrated Animations**: Built on `react-native-reanimated` for 60fps interaction.
+
+---
+
 | Category | Stack |
 |----------|-------|
 | 📱 **Framework** | React Native 0.74 + Expo 51 |
