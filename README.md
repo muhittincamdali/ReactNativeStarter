@@ -19,6 +19,9 @@
 
 <h1 align="center">ReactNativeStarter</h1>
 
+## 🚀 Killer Feature: C++ TurboModule Architecture
+Ready for the New Architecture. This starter completely bypasses the legacy React Native bridge, utilizing C++ TurboModules for synchronous, high-performance native method calls.
+
 <p align="center">
   <strong>Production-ready React Native boilerplate with TypeScript, React Navigation, Zustand & React Query</strong>
 </p>
