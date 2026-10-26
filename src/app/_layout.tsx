@@ -3,6 +3,7 @@ import { DarkTheme, DefaultTheme, Stack, ThemeProvider, type Theme } from 'expo-
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
+import { LogBox } from 'react-native';
 
 import { api } from '@/lib/api';
 import { queryClient } from '@/lib/query-client';
@@ -12,6 +13,11 @@ import { palettes, useTheme } from '@/theme';
 // Keep the splash screen up until the saved session has been read, so a signed-in user never
 // sees the sign-in screen flash by.
 void SplashScreen.preventAutoHideAsync();
+
+// React Native reports this when a native-driven animation sends a value after its screen has
+// gone (switching tabs). It has no effect on the app, and in development its toast would cover the
+// tab bar.
+LogBox.ignoreLogs(['Sending `onAnimatedValueUpdate` with no listeners registered.']);
 
 function navigationTheme(scheme: 'light' | 'dark'): Theme {
   const base = scheme === 'dark' ? DarkTheme : DefaultTheme;
