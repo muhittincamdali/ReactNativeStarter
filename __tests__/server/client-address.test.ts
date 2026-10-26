@@ -1,4 +1,9 @@
-import { clientKey, normalizeAddress, UNKNOWN_CLIENT } from '@/server/client-address';
+import {
+  clientKey,
+  normalizeAddress,
+  parseClientAddress,
+  UNKNOWN_CLIENT,
+} from '@/server/client-address';
 
 function requestFrom(address?: string) {
   return new Request('http://localhost/api/auth/sign-in', {
@@ -26,6 +31,27 @@ describe('normalizeAddress', () => {
       expect(normalizeAddress(raw)).toBeNull();
     },
   );
+});
+
+describe('parseClientAddress', () => {
+  it('keys an IPv6 client by its /64 and its network by its /48', () => {
+    expect(parseClientAddress('2001:db8:85a3:12:8a2e:370:7334:1')).toEqual({
+      client: '2001:db8:85a3:12::/64',
+      network: '2001:db8:85a3::/48',
+    });
+  });
+
+  it('uses an IPv4 address, mapped or not, as both client and network', () => {
+    expect(parseClientAddress('::FFFF:203.0.113.9')).toEqual({
+      client: '203.0.113.9',
+      network: '203.0.113.9',
+    });
+  });
+
+  it('refuses what is not an address', () => {
+    expect(parseClientAddress('::ffff:999.0.0.1')).toBeNull();
+    expect(parseClientAddress('example.com')).toBeNull();
+  });
 });
 
 describe('clientKey', () => {

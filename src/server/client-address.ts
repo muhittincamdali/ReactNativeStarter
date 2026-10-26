@@ -23,8 +23,22 @@ const IPV4 = /^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/;
 const IPV4_MAPPED = /^::ffff:(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})$/i;
 const HEX_GROUP = /^[0-9a-f]{1,4}$/i;
 const IPV6_GROUPS = 8;
-// One home or one server usually gets a whole /64, so its addresses count as one client.
-const IPV6_PREFIX_GROUPS = 4;
+const IPV6_CLIENT_GROUPS = 4;
+const IPV6_NETWORK_GROUPS = 3;
+
+/**
+ * Where a request comes from, as keys for the rate limits.
+ *
+ * - `client` is one client: an IPv4 address, or the /64 network of an IPv6 address, since one
+ *   home or one server usually gets a whole /64.
+ * - `network` is the site the client belongs to: the IPv4 address again, or the /48 network of an
+ *   IPv6 address, which one customer usually gets. It has its own, larger budget, so the 65,536
+ *   /64 networks of one /48 cannot fill the limiter tables.
+ */
+export interface ClientAddress {
+  client: string;
+  network: string;
+}
 
 function ipv4(address: string): string | null {
   const parts = IPV4.exec(address)?.slice(1).map(Number);
@@ -32,7 +46,8 @@ function ipv4(address: string): string | null {
   return parts.join('.');
 }
 
-function ipv6Prefix(address: string): string | null {
+// The eight groups of an IPv6 address as numbers, or null when it is not one.
+function ipv6Groups(address: string): number[] | null {
   const halves = address.split('::');
   if (halves.length > 2) return null;
   const head = halves[0] ? halves[0].split(':') : [];
@@ -41,10 +56,31 @@ function ipv6Prefix(address: string): string | null {
   if (halves.length === 1 ? missing !== 0 : missing < 1) return null;
   const groups = [...head, ...Array<string>(halves.length === 2 ? missing : 0).fill('0'), ...tail];
   if (!groups.every((group) => HEX_GROUP.test(group))) return null;
-  const prefix = groups
-    .slice(0, IPV6_PREFIX_GROUPS)
-    .map((group) => parseInt(group, 16).toString(16));
-  return `${prefix.join(':')}::/64`;
+  return groups.map((group) => parseInt(group, 16));
+}
+
+function ipv6Prefix(groups: number[], count: number): string {
+  const prefix = groups.slice(0, count).map((group) => group.toString(16));
+  return `${prefix.join(':')}::/${count * 16}`;
+}
+
+/**
+ * The {@link ClientAddress} of an IPv4 or IPv6 address; an IPv4-mapped IPv6 address counts as its
+ * IPv4 address. `null` when `raw` is neither.
+ */
+export function parseClientAddress(raw: string): ClientAddress | null {
+  const address = raw.trim().split('%', 1)[0] ?? '';
+  const mapped = IPV4_MAPPED.exec(address)?.[1];
+  if (mapped || !address.includes(':')) {
+    const v4 = ipv4(mapped ?? address);
+    return v4 ? { client: v4, network: v4 } : null;
+  }
+  const groups = ipv6Groups(address);
+  if (!groups) return null;
+  return {
+    client: ipv6Prefix(groups, IPV6_CLIENT_GROUPS),
+    network: ipv6Prefix(groups, IPV6_NETWORK_GROUPS),
+  };
 }
 
 /**
@@ -52,11 +88,7 @@ function ipv6Prefix(address: string): string | null {
  * its IPv4 address, and an IPv6 address as its /64 network. `null` when it is neither.
  */
 export function normalizeAddress(raw: string): string | null {
-  const address = raw.trim().split('%', 1)[0] ?? '';
-  const mapped = IPV4_MAPPED.exec(address)?.[1];
-  if (mapped) return ipv4(mapped);
-  if (address.includes(':')) return ipv6Prefix(address);
-  return ipv4(address);
+  return parseClientAddress(raw)?.client ?? null;
 }
 
 /** The rate-limit key of the request's client; {@link UNKNOWN_CLIENT} when it is not known. */
