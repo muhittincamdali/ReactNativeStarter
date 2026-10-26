@@ -65,7 +65,7 @@ export const tr: Record<MessageKey, string> = {
   'errors.invalidResponse': 'Sunucu beklenmeyen bir yanıt gönderdi.',
   'errors.server': 'Sunucuda bir sorun oluştu. Daha sonra tekrar deneyin.',
   'errors.invalidCredentials': 'E-posta adresi ya da parola yanlış.',
-  'errors.tooManyAttempts': 'Çok fazla başarısız deneme. Birkaç dakika bekleyip tekrar deneyin.',
+  'errors.tooManyAttempts': 'Çok fazla deneme yapıldı. Bir süre bekleyip tekrar deneyin.',
   'errors.taskLimit': 'En fazla görev sayısına ulaştınız. Önce bazılarını silin.',
   'errors.unknown': 'Bir sorun oluştu. Tekrar deneyin.',
 };

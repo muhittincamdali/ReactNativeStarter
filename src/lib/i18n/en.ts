@@ -65,7 +65,7 @@ export const en = {
   'errors.invalidResponse': 'The server sent an unexpected answer.',
   'errors.server': 'Something went wrong on the server. Try again later.',
   'errors.invalidCredentials': 'The e-mail address or the password is wrong.',
-  'errors.tooManyAttempts': 'Too many failed attempts. Wait a few minutes and try again.',
+  'errors.tooManyAttempts': 'Too many attempts. Wait a while and try again.',
   'errors.taskLimit': 'You have reached the maximum number of tasks. Delete some first.',
   'errors.unknown': 'Something went wrong. Try again.',
 } as const;
