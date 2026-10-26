@@ -1,4 +1,4 @@
-<!-- i18n-source: README.md@467b99b41b2762a14345517b546a0b0320caf6ff status=reviewed -->
+<!-- i18n-source: README.md@a36355a38187285901ccd3b1051d2a59788892bc status=reviewed -->
 <!-- brand:start -->
 
 <p align="center"><picture><source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/muhittincamdali/ReactNativeStarter/main/.github/brand/banner-dark.svg"><source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/muhittincamdali/ReactNativeStarter/main/.github/brand/banner-light.svg"><img src="https://raw.githubusercontent.com/muhittincamdali/ReactNativeStarter/main/.github/brand/banner-light.svg" alt="React Native Starter: An Expo app with its own API: accounts, a task list, light and dark themes, two languages and tests."></picture></p>
@@ -33,7 +33,7 @@ Una app de Expo para empezar: funciona en iOS, Android y la web, e incluye su pr
 - **Cuentas hechas con cuidado** — hashes de contraseña PBKDF2 (600.000 iteraciones), tokens de sesión aleatorios guardados solo como hashes SHA-256, tokens en el Keychain de iOS y el Keystore de Android, límites de inicio de sesión y de registro por dirección de cliente que frenan una cuenta atacada en lugar de bloquear a su dueño y la misma respuesta para una dirección incorrecta y para una contraseña incorrecta.
 - **Con límites desde el diseño** — cuerpos de petición de 16 KiB leídos como flujo, respuestas de 1 MiB, 500 tareas por cuenta, páginas de 100 como máximo, parámetros de consulta enteros estrictos y tablas de sesiones y de limitación con tope: ninguna petición puede hacer que el servidor retenga más memoria ni que itere durante más tiempo.
 - **Lista para las personas** — temas claro y oscuro, inglés y turco con claves tipadas, inicio de sesión tolerante a la falta de conexión, actualizaciones optimistas de las tareas, roles y etiquetas de accesibilidad, y áreas táctiles de 48 puntos.
-- **Probada desde el schema hasta la pantalla** — 250 pruebas de Jest, entre ellas una que renderiza las pantallas reales contra los controladores reales de la API en el mismo proceso, además de flujos de Maestro que ejecutan la app compilada en un simulador de iOS.
+- **Probada desde el schema hasta la pantalla** — 281 pruebas de Jest, entre ellas una que renderiza las pantallas reales contra los controladores reales de la API en el mismo proceso, además de flujos de Maestro que ejecutan la app compilada en un simulador de iOS.
 
 ## Inicio rápido
 

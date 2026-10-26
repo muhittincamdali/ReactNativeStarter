@@ -1,4 +1,4 @@
-<!-- i18n-source: README.md@467b99b41b2762a14345517b546a0b0320caf6ff status=reviewed -->
+<!-- i18n-source: README.md@a36355a38187285901ccd3b1051d2a59788892bc status=reviewed -->
 <!-- brand:start -->
 
 <p align="center"><picture><source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/muhittincamdali/ReactNativeStarter/main/.github/brand/banner-dark.svg"><source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/muhittincamdali/ReactNativeStarter/main/.github/brand/banner-light.svg"><img src="https://raw.githubusercontent.com/muhittincamdali/ReactNativeStarter/main/.github/brand/banner-light.svg" alt="React Native Starter: An Expo app with its own API: accounts, a task list, light and dark themes, two languages and tests."></picture></p>
@@ -33,7 +33,7 @@ Une application Expo pour démarrer : elle fonctionne sur iOS, Android et le we
 - **Des comptes soignés** — hachages de mot de passe PBKDF2 (600 000 itérations), jetons de session aléatoires stockés uniquement sous forme de hachages SHA-256, jetons conservés dans le Keychain d’iOS et le Keystore d’Android, des limites de connexion et d’inscription par adresse de client qui ralentissent un compte attaqué au lieu d’en bloquer le propriétaire, et la même réponse pour une adresse incorrecte et pour un mot de passe incorrect.
 - **Bornée dès la conception** — corps de requête de 16 KiB lus en flux, réponses de 1 MiB, 500 tâches par compte, pages de 100 éléments au plus, paramètres de requête entiers stricts, tables de sessions et de limitation plafonnées : aucune requête ne peut obliger le serveur à retenir plus de mémoire ni à boucler plus longtemps.
 - **Prête pour les utilisateurs** — thèmes clair et sombre, anglais et turc avec des clés typées, connexion tolérante au mode hors ligne, mises à jour optimistes des tâches, rôles et libellés d’accessibilité, et zones tactiles de 48 points.
-- **Testée du schéma jusqu’à l’écran** — 250 tests Jest, dont un qui affiche les vrais écrans face aux vrais gestionnaires de l’API dans le même processus, ainsi que des flux Maestro qui exécutent l’application compilée sur un simulateur iOS.
+- **Testée du schéma jusqu’à l’écran** — 281 tests Jest, dont un qui affiche les vrais écrans face aux vrais gestionnaires de l’API dans le même processus, ainsi que des flux Maestro qui exécutent l’application compilée sur un simulateur iOS.
 
 ## Démarrage rapide
 

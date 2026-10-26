@@ -45,7 +45,7 @@ upgrade path from 1.x. Start from a new clone.
   signs out only on a `401`.
 - A typed API client with one time limit for the request and the body, a response size limit
   that stops a body stream at 1 MiB, and schema-checked answers.
-- 250 Jest tests, among them a test that renders the real screens against the real API handlers
+- 281 Jest tests, among them a test that renders the real screens against the real API handlers
   in one process, and Maestro flows for a simulator or a device.
 - `npm run serve` for the production build (`scripts/serve.mjs`).
 - Examples: a task statistics route with its client call and card, and a SQLite `TaskRepository`

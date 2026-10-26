@@ -1,4 +1,4 @@
-<!-- i18n-source: README.md@467b99b41b2762a14345517b546a0b0320caf6ff status=reviewed -->
+<!-- i18n-source: README.md@a36355a38187285901ccd3b1051d2a59788892bc status=reviewed -->
 <!-- brand:start -->
 
 <p align="center"><picture><source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/muhittincamdali/ReactNativeStarter/main/.github/brand/banner-dark.svg"><source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/muhittincamdali/ReactNativeStarter/main/.github/brand/banner-light.svg"><img src="https://raw.githubusercontent.com/muhittincamdali/ReactNativeStarter/main/.github/brand/banner-light.svg" alt="React Native Starter: An Expo app with its own API: accounts, a task list, light and dark themes, two languages and tests."></picture></p>
@@ -33,7 +33,7 @@
 - **Аккаунты, сделанные аккуратно** — хеши паролей PBKDF2 (600 000 итераций), случайные токены сессий, которые хранятся только в виде хешей SHA-256, токены в iOS Keychain и Android Keystore, ограничения входа и регистрации по адресу клиента, которые замедляют атакуемый аккаунт, а не блокируют его владельца и одинаковый ответ на неверный адрес и неверный пароль.
 - **Ограничено по замыслу** — тела запросов по 16 KiB, читаемые потоком, ответы до 1 MiB, 500 задач на аккаунт, страницы не более 100 записей, строгие целочисленные параметры запроса и таблицы сессий и ограничителя с предельным размером: ни один запрос не заставит сервер занимать больше памяти или работать в цикле дольше.
 - **Готово для людей** — светлая и тёмная темы, английский и турецкий с типизированными ключами, вход, устойчивый к отсутствию сети, оптимистичные обновления задач, роли и метки доступности и области касания в 48 пунктов.
-- **Протестировано от схемы до экрана** — 250 тестов Jest, включая тест, который в одном процессе отрисовывает настоящие экраны поверх настоящих обработчиков API, а также сценарии Maestro, которые запускают собранное приложение в симуляторе iOS.
+- **Протестировано от схемы до экрана** — 281 тест Jest, включая тест, который в одном процессе отрисовывает настоящие экраны поверх настоящих обработчиков API, а также сценарии Maestro, которые запускают собранное приложение в симуляторе iOS.
 
 ## Быстрый старт
 

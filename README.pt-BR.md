@@ -1,4 +1,4 @@
-<!-- i18n-source: README.md@467b99b41b2762a14345517b546a0b0320caf6ff status=reviewed -->
+<!-- i18n-source: README.md@a36355a38187285901ccd3b1051d2a59788892bc status=reviewed -->
 <!-- brand:start -->
 
 <p align="center"><picture><source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/muhittincamdali/ReactNativeStarter/main/.github/brand/banner-dark.svg"><source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/muhittincamdali/ReactNativeStarter/main/.github/brand/banner-light.svg"><img src="https://raw.githubusercontent.com/muhittincamdali/ReactNativeStarter/main/.github/brand/banner-light.svg" alt="React Native Starter: An Expo app with its own API: accounts, a task list, light and dark themes, two languages and tests."></picture></p>
@@ -33,7 +33,7 @@ Um app Expo para você começar: roda em iOS, Android e na web e traz o próprio
 - **Contas feitas com cuidado** — hashes de senha PBKDF2 (600.000 iterações), tokens de sessão aleatórios guardados apenas como hashes SHA-256, tokens no Keychain do iOS e no Keystore do Android, limites de login e de cadastro por endereço de cliente que desaceleram uma conta atacada em vez de bloquear o dono dela e a mesma resposta para um endereço errado e para uma senha errada.
 - **Limitado desde o projeto** — corpos de requisição de 16 KiB lidos como stream, respostas de 1 MiB, 500 tarefas por conta, páginas de no máximo 100 itens, parâmetros de consulta inteiros estritos e tabelas de sessões e de limitação com teto: nenhuma requisição consegue fazer o servidor reter mais memória nem repetir um laço por mais tempo.
 - **Pronto para as pessoas** — temas claro e escuro, inglês e turco com chaves tipadas, login tolerante a falta de conexão, atualizações otimistas das tarefas, papéis e rótulos de acessibilidade e áreas de toque de 48 pontos.
-- **Testado do schema até a tela** — 250 testes do Jest, incluindo um que renderiza as telas reais contra os handlers reais da API no mesmo processo, além de fluxos do Maestro que executam o app compilado em um simulador de iOS.
+- **Testado do schema até a tela** — 281 testes do Jest, incluindo um que renderiza as telas reais contra os handlers reais da API no mesmo processo, além de fluxos do Maestro que executam o app compilado em um simulador de iOS.
 
 ## Início rápido
 

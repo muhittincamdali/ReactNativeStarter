@@ -43,7 +43,7 @@ change, rather than a folder of empty screens.
   tables: no request can make the server hold more or loop longer.
 - **Ready for people** — light and dark themes, English and Turkish with typed keys, offline-tolerant
   sign-in, optimistic task updates, accessibility roles and labels, and 48-point touch targets.
-- **Tested from the schema to the screen** — 250 Jest tests, including one that renders the
+- **Tested from the schema to the screen** — 281 Jest tests, including one that renders the
   real screens against the real API handlers in the same process, plus Maestro flows that run the
   built app on an iOS simulator.
 

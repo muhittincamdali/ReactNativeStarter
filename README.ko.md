@@ -1,4 +1,4 @@
-<!-- i18n-source: README.md@467b99b41b2762a14345517b546a0b0320caf6ff status=reviewed -->
+<!-- i18n-source: README.md@a36355a38187285901ccd3b1051d2a59788892bc status=reviewed -->
 <!-- brand:start -->
 
 <p align="center"><picture><source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/muhittincamdali/ReactNativeStarter/main/.github/brand/banner-dark.svg"><source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/muhittincamdali/ReactNativeStarter/main/.github/brand/banner-light.svg"><img src="https://raw.githubusercontent.com/muhittincamdali/ReactNativeStarter/main/.github/brand/banner-light.svg" alt="React Native Starter: An Expo app with its own API: accounts, a task list, light and dark themes, two languages and tests."></picture></p>
@@ -33,7 +33,7 @@
 - **꼼꼼하게 만든 계정** — PBKDF2 비밀번호 해시(반복 600,000회), SHA-256 해시로만 저장되는 무작위 세션 토큰, iOS Keychain과 Android Keystore에 보관되는 토큰, 공격받는 계정의 소유자를 잠그지 않고 속도만 늦추는, 클라이언트 주소별 로그인·가입 제한, 그리고 잘못된 주소와 잘못된 비밀번호에 대한 동일한 응답.
 - **설계 단계부터 한도를 둠** — 스트림으로 읽는 16 KiB 요청 본문, 1 MiB 응답, 계정당 할 일 500개, 최대 100개 단위의 페이지, 엄격한 정수 쿼리 매개변수, 상한이 있는 세션 테이블과 제한기(limiter) 테이블. 어떤 요청도 서버가 더 많은 메모리를 붙잡거나 더 오래 반복하게 만들 수 없습니다.
 - **사용자를 위한 준비** — 라이트 테마와 다크 테마, 타입이 지정된 키를 쓰는 영어와 터키어, 오프라인에 강한 로그인, 낙관적(optimistic) 할 일 업데이트, 접근성 역할과 레이블, 48포인트 터치 영역.
-- **schema부터 화면까지 테스트** — 실제 화면을 실제 API 핸들러에 연결해 같은 프로세스에서 렌더링하는 테스트를 포함한 250개의 Jest 테스트와, 빌드된 앱을 iOS 시뮬레이터에서 실행하는 Maestro 플로우가 있습니다.
+- **schema부터 화면까지 테스트** — 실제 화면을 실제 API 핸들러에 연결해 같은 프로세스에서 렌더링하는 테스트를 포함한 281개의 Jest 테스트와, 빌드된 앱을 iOS 시뮬레이터에서 실행하는 Maestro 플로우가 있습니다.
 
 ## 빠른 시작
 
