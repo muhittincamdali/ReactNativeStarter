@@ -75,8 +75,8 @@ export const MAX_SIGN_IN_DELAY_MS = 5_000;
 
 /**
  * Keys each rate limiter tracks at once (client addresses, pairs of client and e-mail address,
- * e-mail addresses). A limiter whose table is full of keys still counting refuses new keys until
- * the oldest window ends.
+ * e-mail addresses). A full table makes room by dropping the key with the fewest attempts that is
+ * not locked, and never refuses a new key.
  */
 export const MAX_RATE_LIMIT_KEYS = 50_000;
 

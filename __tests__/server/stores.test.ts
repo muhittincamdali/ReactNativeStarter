@@ -38,27 +38,43 @@ describe('AttemptLimiter', () => {
     expect(limiter.retryAfter('a')).toBe(0);
   });
 
-  it('keeps a locked key locked after maxKeys + 1000 new keys, refusing the new ones', () => {
+  it('keeps a locked key locked after maxKeys + 1000 new keys and still counts new keys', () => {
     const time = clock();
     const limiter = new AttemptLimiter({
-      maxAttempts: 1,
+      maxAttempts: 2,
       windowMs: 1000,
       maxKeys: 100,
       now: time.now,
     });
     limiter.record('locked');
-    let refused = 0;
+    limiter.record('locked');
     for (let i = 0; i < 1_100; i += 1) {
-      if (!limiter.record(`spray-${i}`)) refused += 1;
+      expect(limiter.record(`spray-${i}`)).toBe(true);
     }
     expect(limiter.size).toBe(100);
-    expect(refused).toBe(1_001);
     expect(limiter.retryAfter('locked')).toBe(1000);
-    expect(limiter.retryAfter('spray-1099')).toBe(1000);
-    expect(limiter.record('spray-1099')).toBe(false);
+    expect(limiter.retryAfter('newcomer')).toBe(0);
+    expect(limiter.record('newcomer')).toBe(true);
+    expect(limiter.attempts('newcomer')).toBe(1);
   });
 
-  it('makes room only from keys whose window has ended', () => {
+  it('makes room by dropping the unlocked key with the fewest attempts, oldest first', () => {
+    const limiter = new AttemptLimiter({ maxAttempts: 3, windowMs: 1000, maxKeys: 3 });
+    limiter.record('two');
+    limiter.record('two');
+    limiter.record('one-old');
+    limiter.record('one-new');
+    limiter.record('third');
+    expect(limiter.attempts('one-old')).toBe(0);
+    expect(limiter.attempts('one-new')).toBe(1);
+    expect(limiter.attempts('two')).toBe(2);
+    limiter.record('one-new');
+    limiter.record('fourth');
+    expect(limiter.attempts('third')).toBe(0);
+    expect(limiter.size).toBe(3);
+  });
+
+  it('leaves a new key uncounted, never refused, when every tracked key is locked', () => {
     const time = clock();
     const limiter = new AttemptLimiter({
       maxAttempts: 1,
@@ -66,15 +82,28 @@ describe('AttemptLimiter', () => {
       maxKeys: 2,
       now: time.now,
     });
+    limiter.record('a');
+    limiter.record('b');
+    expect(limiter.record('c')).toBe(false);
+    expect(limiter.retryAfter('c')).toBe(0);
+    expect(limiter.retryAfter('a')).toBe(1000);
+    time.advance(1000);
+    expect(limiter.record('c')).toBe(true);
+    expect(limiter.size).toBe(1);
+  });
+
+  it('drops the oldest key of a counter that never locks', () => {
+    const limiter = new AttemptLimiter({
+      maxAttempts: Number.POSITIVE_INFINITY,
+      windowMs: 1000,
+      maxKeys: 2,
+    });
     limiter.record('old');
-    time.advance(600);
-    limiter.record('newer');
-    expect(limiter.retryAfter('third')).toBe(400);
-    time.advance(400);
-    expect(limiter.retryAfter('third')).toBe(0);
-    expect(limiter.record('third')).toBe(true);
-    expect(limiter.retryAfter('newer')).toBe(600);
-    expect(limiter.size).toBe(2);
+    limiter.record('busy');
+    limiter.record('busy');
+    expect(limiter.record('new')).toBe(true);
+    expect(limiter.attempts('old')).toBe(0);
+    expect(limiter.attempts('busy')).toBe(2);
   });
 });
 
