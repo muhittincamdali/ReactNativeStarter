@@ -27,11 +27,21 @@ npx eas-cli@latest deploy
 
 Check it with `curl https://<your-domain>/api/health`, which answers `{"status":"ok"}`.
 
+### Client address
+
+The sign-in and sign-up limits count per client address, which the API reads from the
+`X-Client-Address` header (`src/server/client-address.ts`). `scripts/serve.mjs` sets it from the
+socket and removes any value the client sent. Behind a reverse proxy or a load balancer, the socket
+address is the proxy's, so every client would share one limit: change `setClientAddress()` in
+`scripts/serve.mjs` to take the address your proxy reports (for example the last entry it appends
+to `X-Forwarded-For`), and only from your proxy. On another adapter or host, set the header the
+same way before the request reaches the routes. Never pass on a value the client chose.
+
 ## 2. Keep the data
 
-Out of the box, accounts, sessions and tasks live in the server's memory: a restart empties them,
-and two server instances would not see each other's data. Before real users arrive, give each
-store a database:
+Out of the box, accounts, sessions, tasks and the rate-limit counters live in the server's memory:
+a restart empties them, and two server instances would not see each other's data or counts. Before
+real users arrive, give each store a database:
 
 - **Tasks** go through the `TaskRepository` interface in `src/server/tasks.ts`.
   [`Examples/sqlite-repository`](https://github.com/muhittincamdali/ReactNativeStarter/tree/main/Examples/sqlite-repository)
@@ -40,6 +50,9 @@ store a database:
 - **Accounts and sessions** (`AccountService`, `SessionStore`) follow the same pattern: keep the
   public methods, replace the `Map`s with tables. Store only the password hash and the SHA-256 of
   each session token, as the in-memory versions do.
+- **Rate-limit counters** (`AttemptLimiter` in `src/server/rate-limit.ts`) need a store every
+  instance shares, such as Redis, with the same rules: count an attempt before the password is
+  checked, and never drop a key that is still counting to make room.
 
 ## 3. Point the apps at the server
 

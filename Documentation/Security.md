@@ -23,8 +23,10 @@ names the file to read and the test that checks it.
 
 - A session token is 32 random bytes. The server keeps only its SHA-256, so reading the session
   table does not give working tokens (`src/server/sessions.ts`).
-- Sessions expire after 30 days; an account keeps at most 10 and the server at most 20,000, oldest
-  first out. Signing out revokes the token on the server.
+- Sessions expire after 30 days. An account keeps at most 10, and a new one replaces that
+  account's oldest. The table has room for 10 sessions for each of the 1,000 accounts; if it is
+  ever full, a new session is refused with `503 capacity` and nobody else's session is dropped.
+  Signing out revokes the token on the server.
 - On iOS and Android the token is stored with `expo-secure-store` in the Keychain or Keystore,
   readable after the first unlock and never copied to another device. In the browser it is kept
   in `sessionStorage` (`src/lib/secure-storage.web.ts`); for a public web app, prefer an
@@ -40,15 +42,30 @@ names the file to read and the test that checks it.
 - Numbers in query strings are plain digits inside a range; `NaN`, `Infinity`, exponents and
   signs are refused (`src/shared/numbers.ts`).
 - Text fields refuse control characters, line separators and bidirectional overrides.
-- Every list has an upper bound: tasks per account, page size, sessions, accounts and the number
-  of e-mail addresses the sign-in limiter remembers (`src/shared/limits.ts`). A client cannot make
-  the server hold more than these, or loop longer.
-- Five failed sign-ins for one address lock it for 15 minutes (`429` with `Retry-After`). Each
-  attempt is counted before the password is checked, so parallel requests cannot slip past.
+- Every list has an upper bound: 1,000 accounts, 500 tasks per account and 100,000 in all, page
+  size, sessions and the keys each rate limiter remembers (`src/shared/limits.ts`). A client
+  cannot make the server hold more than these, or loop longer. A full rate-limit table never
+  forgets a key that is still counting; it refuses new keys until the oldest window ends
+  (`src/server/rate-limit.ts`, `stores.test.ts`).
+- Sign-in has three limits over 15 minutes (`src/server/accounts.ts`, `routes.test.ts`):
+  - one client address gets 30 attempts, for any addresses, then `429` with `Retry-After`;
+  - one client address gets 5 failures for one e-mail address, then `429` for that pair only;
+  - failures for one e-mail address from all clients together never lock it: after 5, each
+    attempt waits 250 ms, doubling up to 5 seconds, before the password is checked. Someone
+    trying wrong passwords for your address slows your sign-in down but cannot keep you out.
+
+  Each attempt is counted before the password is checked, so parallel requests cannot slip past.
+- One client address can sign up 10 times an hour, a taken address included.
+- The client address is the `X-Client-Address` header (`src/server/client-address.ts`).
+  `npm run serve` replaces any value a client sends with the socket's address; an IPv6 address
+  counts as its /64 network. Requests without the header, as in `npx expo start`, share one
+  client limit.
 - Errors carry a stable code and no internal details; an unexpected error is a plain `500`.
-- The app reads at most 1 MiB of an answer. A declared `Content-Length` above that is refused before
-  the body is read; React Native's `fetch` cannot stop a body without one halfway, so its length is
-  checked after reading (`src/lib/api-client.ts`).
+- The app reads at most 1 MiB of an answer, and one 15-second limit covers the request and the
+  whole body. A declared `Content-Length` above 1 MiB is refused before the body is read; a body
+  stream (web) is cancelled once it passes the limit. React Native's `fetch` has no body stream
+  and delivers the body in one piece, so there its length is checked after reading
+  (`src/lib/api-client.ts`).
 
 ## Logging
 
@@ -56,14 +73,33 @@ The app and the API write nothing to the console or a log, and ESLint's `no-cons
 it that way. If you add logging or error reporting, never log request bodies, `Authorization`
 headers, tokens or passwords.
 
+## Demo server or production
+
+The API in `src/server` is complete enough to run the app end to end and to show where each check
+belongs, but it keeps everything in the memory of one process:
+
+- a restart signs everyone out and deletes all accounts and tasks;
+- two server instances do not share accounts, sessions or rate-limit counts, so the limits apply
+  per instance;
+- the limits are sized for a demo: 1,000 accounts and 100,000 tasks, tens of megabytes at most.
+
+Before real users arrive:
+
+- move accounts, sessions and tasks to a database ([Deploying](Deploying.md#2-keep-the-data));
+- move the rate-limit counters to a store all instances share, such as Redis, keeping the same
+  rules: count before checking the password, never drop a key that is still counting;
+- behind a proxy or on another host, set `X-Client-Address` from the address your proxy reports
+  and drop any value the client sent ([Deploying](Deploying.md#client-address));
+- add bot protection (a challenge after repeated failures, or a service in front of the API) if
+  you expect attacks from many addresses at once: the limits here slow those down per address
+  but do not stop them.
+
 ## Not included
 
 These depend on your product, so the starter leaves them to you:
 
 - HTTPS: terminate TLS at your host or proxy.
-- A database: see [Deploying](Deploying.md).
-- Rate limits per IP address. Behind a proxy, the client address is in a header that only your
-  proxy can be trusted to set.
+- A database and a shared rate-limit store: see [Demo server or production](#demo-server-or-production).
 - E-mail verification, password reset, two-factor sign-in and account deletion.
 - CORS: the API sends no CORS headers, so browsers allow calls only from the same origin. The
   native apps are not affected.
