@@ -7,7 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-Planned as 2.0.0. The app was rebuilt from scratch on Expo SDK 58: the 1.x sources could not be
+## [2.0.0] - 2026-10-26
+
+The app was rebuilt from scratch on Expo SDK 58: the 1.x sources could not be
 installed or started from a fresh clone (see 1.0.0), so nothing of them is kept and there is no
 upgrade path from 1.x. Start from a new clone.
 
@@ -74,5 +76,6 @@ TanStack Query and sample screens. It had no lockfile, its Babel configuration u
 were not dependencies, and `app.json` pointed at image files that were not in the repository, so it
 did not install or start from a fresh clone.
 
-[Unreleased]: https://github.com/muhittincamdali/ReactNativeStarter/compare/v1.0.0...HEAD
+[Unreleased]: https://github.com/muhittincamdali/ReactNativeStarter/compare/v2.0.0...HEAD
+[2.0.0]: https://github.com/muhittincamdali/ReactNativeStarter/compare/v1.0.0...v2.0.0
 [1.0.0]: https://github.com/muhittincamdali/ReactNativeStarter/releases/tag/v1.0.0
