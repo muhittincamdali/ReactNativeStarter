@@ -1,0 +1,77 @@
+# End-to-end flow on a simulator or device: sign up, add and complete tasks, switch to the
+# settings tab and sign out. Needs a development build (`npm run ios`) with the development
+# server running, which also serves the API.
+#
+#   maestro test .maestro                       run the flows
+#   maestro test -e SHOTS=docs/images .maestro  also save the screenshots the README shows
+appId: com.muhittincamdali.reactnativestarter
+env:
+  SHOTS: .maestro/output
+---
+- launchApp:
+    clearState: true
+    clearKeychain: true
+- extendedWaitUntil:
+    visible: 'Welcome back'
+    timeout: 60000
+- takeScreenshot: ${SHOTS}/sign-in
+- tapOn: 'New here? Create an account'
+- evalScript: ${output.email = 'ada.' + new Date().getTime() + '@example.com'}
+# The password goes in before the e-mail address: with a user name already filled in, iOS offers
+# a generated strong password for the field and drops typed text.
+- tapOn:
+    id: 'password'
+- inputText: 'correct horse battery'
+- tapOn:
+    id: 'name'
+- inputText: 'Ada'
+- tapOn:
+    id: 'email'
+- inputText: ${output.email}
+- hideKeyboard
+- tapOn:
+    id: 'submit'
+- extendedWaitUntil:
+    visible: 'Hi, Ada'
+    timeout: 20000
+- assertVisible: 'No tasks yet'
+- tapOn:
+    id: 'new-task'
+- inputText: 'Write the release notes'
+- pressKey: Enter
+- extendedWaitUntil:
+    # The row is one accessibility element labelled "Mark <title> as done".
+    visible: '.*Write the release notes.*'
+    timeout: 10000
+- tapOn:
+    id: 'new-task'
+- inputText: 'Book the team dinner'
+- pressKey: Enter
+- extendedWaitUntil:
+    visible: '.*Book the team dinner.*'
+    timeout: 10000
+- tapOn:
+    id: 'new-task'
+- inputText: 'Review pull request #42'
+- pressKey: Enter
+- extendedWaitUntil:
+    visible: '.*Review pull request #42.*'
+    timeout: 10000
+- tapOn:
+    id: 'toggle-Book the team dinner'
+- extendedWaitUntil:
+    visible: '2 open'
+    timeout: 10000
+- takeScreenshot: ${SHOTS}/tasks
+- tapOn:
+    id: 'tab-settings'
+- extendedWaitUntil:
+    visible: 'Sign out'
+    timeout: 10000
+- assertVisible: ${output.email}
+- takeScreenshot: ${SHOTS}/settings
+- tapOn:
+    id: 'sign-out'
+- extendedWaitUntil:
+    visible: 'Welcome back'
+    timeout: 10000

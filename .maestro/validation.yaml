@@ -1,0 +1,22 @@
+# Errors without a network request: an empty sign-up form, then an invalid e-mail address.
+appId: com.muhittincamdali.reactnativestarter
+---
+- launchApp:
+    clearState: true
+    clearKeychain: true
+- extendedWaitUntil:
+    visible: 'Welcome back'
+    timeout: 60000
+- tapOn: 'New here? Create an account'
+- tapOn:
+    id: 'submit'
+- assertVisible: 'Use at least 8 characters.'
+- tapOn:
+    id: 'email'
+- inputText: 'not-an-address'
+- tapOn:
+    id: 'password'
+- inputText: 'long enough password'
+- pressKey: Enter
+- assertVisible: 'Enter an e-mail address such as name@example.com.'
+- assertVisible: 'Fill in this field.'
