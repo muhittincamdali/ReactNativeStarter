@@ -45,7 +45,10 @@ export function GET(request: Request): Promise<Response> {
   });
 }
 
-/** `POST /api/tasks`: adds a task and answers `201`, or `409 task_limit` at 500 tasks. */
+/**
+ * `POST /api/tasks`: adds a task and answers `201`, `409 task_limit` at 500 tasks for the account,
+ * or `503 capacity` when the server's store is full.
+ */
 export function POST(request: Request): Promise<Response> {
   return handle(async () => {
     const { accounts, tasks } = getServerApp();

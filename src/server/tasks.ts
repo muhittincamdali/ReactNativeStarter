@@ -8,6 +8,8 @@
  */
 import type { Task } from '@/shared/schemas';
 
+import { HttpError } from './http';
+
 /** Options of {@link TaskRepository.list}. */
 export interface ListOptions {
   /** Page size, already validated by the route. */
@@ -26,7 +28,10 @@ export interface TaskPageResult {
 export interface TaskRepository {
   /** A page of the account's tasks, or `null` when `cursor` names no task of this account. */
   list(userId: string, options: ListOptions): TaskPageResult | null;
-  /** Adds a task, or returns `null` when the account already has the maximum number. */
+  /**
+   * Adds a task, or returns `null` when the account already has the maximum number. A store with
+   * a limit for all accounts may throw `503 capacity` when it is full.
+   */
   create(userId: string, title: string): Task | null;
   /** Changes a task, or returns `null` when the account has no task with this id. */
   update(
@@ -41,6 +46,8 @@ export interface TaskRepository {
 /** Options of {@link MemoryTaskRepository}. */
 export interface MemoryTaskRepositoryOptions {
   maxPerUser: number;
+  /** Tasks kept for all accounts together; no limit when it is left out. */
+  maxTotal?: number;
   now?: () => number;
   newId?: () => string;
 }
@@ -51,6 +58,7 @@ export class MemoryTaskRepository implements TaskRepository {
   private readonly tasks = new Map<string, Task[]>();
   private readonly now: () => number;
   private readonly newId: () => string;
+  private total = 0;
 
   constructor(private readonly options: MemoryTaskRepositoryOptions) {
     this.now = options.now ?? Date.now;
@@ -77,6 +85,9 @@ export class MemoryTaskRepository implements TaskRepository {
   create(userId: string, title: string): Task | null {
     const own = this.tasks.get(userId) ?? [];
     if (own.length >= this.options.maxPerUser) return null;
+    if (this.total >= (this.options.maxTotal ?? Number.POSITIVE_INFINITY)) {
+      throw new HttpError(503, 'capacity', 'The server cannot store more tasks.');
+    }
     const timestamp = new Date(this.now()).toISOString();
     const task: Task = {
       id: this.newId(),
@@ -87,6 +98,7 @@ export class MemoryTaskRepository implements TaskRepository {
     };
     own.push(task);
     this.tasks.set(userId, own);
+    this.total += 1;
     return { ...task };
   }
 
@@ -108,6 +120,7 @@ export class MemoryTaskRepository implements TaskRepository {
     const index = own?.findIndex((task) => task.id === id) ?? -1;
     if (!own || index === -1) return false;
     own.splice(index, 1);
+    this.total -= 1;
     return true;
   }
 }

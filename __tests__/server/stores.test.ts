@@ -229,6 +229,17 @@ describe('MemoryTaskRepository', () => {
     expect(repo.create('other', 'a')).not.toBeNull();
   });
 
+  it('refuses a task with 503 past maxTotal for all accounts, and frees room on remove', () => {
+    const repo = new MemoryTaskRepository({ maxPerUser: 10, maxTotal: 2 });
+    const first = repo.create('a', 'one')!;
+    repo.create('b', 'two');
+    expect(() => repo.create('c', 'three')).toThrow(
+      expect.objectContaining({ status: 503, code: 'capacity' }),
+    );
+    expect(repo.remove('a', first.id)).toBe(true);
+    expect(repo.create('c', 'three')).not.toBeNull();
+  });
+
   it('updates the title, the state and updatedAt', () => {
     const { repo, time } = repository();
     const task = repo.create('u', 'draft')!;

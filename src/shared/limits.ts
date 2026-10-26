@@ -31,8 +31,18 @@ export const MAX_TASKS_PER_USER = 500;
 export const DEFAULT_PAGE_SIZE = 50;
 export const MAX_PAGE_SIZE = 100;
 
-/** Accounts the in-memory store keeps. Sign-up returns `503 capacity` beyond this. */
-export const MAX_USERS = 10_000;
+/**
+ * Accounts the in-memory store keeps. Sign-up returns `503 capacity` beyond this. With
+ * {@link MAX_STORED_TASKS}, it keeps the demo server's memory to tens of megabytes.
+ */
+export const MAX_USERS = 1_000;
+
+/** Tasks the in-memory store keeps for all accounts together; more get `503 capacity`. */
+export const MAX_STORED_TASKS = 100_000;
+
+/** Sign-ups allowed from one client address within {@link SIGN_UP_WINDOW_MS}. */
+export const MAX_SIGN_UPS_PER_CLIENT = 10;
+export const SIGN_UP_WINDOW_MS = 60 * 60 * 1000;
 
 /** Sessions kept per account; a new session replaces the account's oldest. */
 export const MAX_SESSIONS_PER_USER = 10;

@@ -198,6 +198,39 @@ describe('auth routes', () => {
     expect(delays).toHaveLength(8);
   });
 
+  it('limits sign-ups per client, also when the address is taken', async () => {
+    setServerApp(createServerApp({ iterations: 1_000, maxSignUpsPerClient: 2 }));
+    const attempt = (email: string, client: string) =>
+      signUp(
+        request('/api/auth/sign-up', {
+          method: 'POST',
+          body: { name: 'Ada', email, password: 'correct horse' },
+          client,
+        }),
+      );
+    expect((await attempt('a@example.com', '203.0.113.9')).status).toBe(201);
+    expect((await attempt('a@example.com', '203.0.113.9')).status).toBe(409);
+    const limited = await attempt('b@example.com', '203.0.113.9');
+    expect(limited.status).toBe(429);
+    expect(Number(limited.headers.get('retry-after'))).toBeGreaterThan(0);
+    expect((await attempt('b@example.com', '198.51.100.7')).status).toBe(201);
+  });
+
+  it('answers 503 when the account table is full', async () => {
+    setServerApp(createServerApp({ iterations: 1_000, maxUsers: 1 }));
+    const attempt = (email: string) =>
+      signUp(
+        request('/api/auth/sign-up', {
+          method: 'POST',
+          body: { name: 'Ada', email, password: 'correct horse' },
+        }),
+      );
+    expect((await attempt('a@example.com')).status).toBe(201);
+    const full = await attempt('b@example.com');
+    expect(full.status).toBe(503);
+    expect(await full.json()).toMatchObject({ error: { code: 'capacity' } });
+  });
+
   it('counts parallel attempts, so they cannot all pass the limit at once', async () => {
     await register();
     const results = await Promise.all(

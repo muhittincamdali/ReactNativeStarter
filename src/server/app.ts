@@ -10,10 +10,13 @@ import {
   MAX_SESSIONS_PER_USER,
   MAX_SIGN_IN_ATTEMPTS_PER_CLIENT,
   MAX_SIGN_IN_FAILURES,
+  MAX_SIGN_UPS_PER_CLIENT,
+  MAX_STORED_TASKS,
   MAX_TASKS_PER_USER,
   MAX_USERS,
   SESSION_TTL_MS,
   SIGN_IN_WINDOW_MS,
+  SIGN_UP_WINDOW_MS,
 } from '@/shared/limits';
 
 import { AccountService } from './accounts';
@@ -35,6 +38,8 @@ export interface ServerAppOptions {
   maxTasksPerUser?: number;
   maxSignInFailures?: number;
   maxSignInAttemptsPerClient?: number;
+  maxSignUpsPerClient?: number;
+  maxStoredTasks?: number;
   /** Replaces the wait before a slowed-down sign-in. */
   sleep?: (ms: number) => Promise<void>;
 }
@@ -65,12 +70,19 @@ export function createServerApp(options: ServerAppOptions = {}): ServerApp {
     accounts: new AccountService({
       sessions,
       signInLimits,
+      signUpLimiter: new AttemptLimiter({
+        maxAttempts: options.maxSignUpsPerClient ?? MAX_SIGN_UPS_PER_CLIENT,
+        windowMs: SIGN_UP_WINDOW_MS,
+        maxKeys: MAX_RATE_LIMIT_KEYS,
+        now,
+      }),
       maxUsers: options.maxUsers ?? MAX_USERS,
       ...(options.iterations === undefined ? {} : { iterations: options.iterations }),
       ...(options.sleep === undefined ? {} : { sleep: options.sleep }),
     }),
     tasks: new MemoryTaskRepository({
       maxPerUser: options.maxTasksPerUser ?? MAX_TASKS_PER_USER,
+      maxTotal: options.maxStoredTasks ?? MAX_STORED_TASKS,
       now,
     }),
   };

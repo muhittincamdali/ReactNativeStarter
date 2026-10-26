@@ -35,6 +35,8 @@ export interface SignInLimits {
 export interface AccountServiceOptions {
   sessions: SessionStore;
   signInLimits: SignInLimits;
+  /** Every sign-up attempt per client address. */
+  signUpLimiter: AttemptLimiter;
   maxUsers: number;
   /** PBKDF2 iterations; tests lower it to keep the suite fast. */
   iterations?: number;
@@ -55,13 +57,9 @@ export function signInDelayMs(failures: number): number {
 }
 
 function tooManyAttempts(retryAfterMs: number): HttpError {
-  return new HttpError(
-    429,
-    'too_many_attempts',
-    'Too many sign-in attempts. Try again later.',
-    undefined,
-    { 'Retry-After': String(Math.ceil(retryAfterMs / 1000)) },
-  );
+  return new HttpError(429, 'too_many_attempts', 'Too many attempts. Try again later.', undefined, {
+    'Retry-After': String(Math.ceil(retryAfterMs / 1000)),
+  });
 }
 
 function wait(ms: number): Promise<void> {
@@ -85,8 +83,16 @@ export class AccountService {
     this.sleep = options.sleep ?? wait;
   }
 
-  /** Creates an account and signs it in. */
-  async signUp(input: z.output<typeof signUpSchema>): Promise<Session> {
+  /**
+   * Creates an account and signs it in, for the client `client` (see `clientKey`). A client gets
+   * `429` after `MAX_SIGN_UPS_PER_CLIENT` attempts in a window, so one client cannot fill the
+   * account table.
+   */
+  async signUp(input: z.output<typeof signUpSchema>, client: string): Promise<Session> {
+    const { signUpLimiter } = this.options;
+    const retryAfterMs = signUpLimiter.retryAfter(client);
+    if (retryAfterMs > 0) throw tooManyAttempts(retryAfterMs);
+    signUpLimiter.record(client);
     if (this.idsByEmail.has(input.email)) {
       throw new HttpError(409, 'email_taken', 'An account with this e-mail address exists.', {
         email: 'validation.emailTaken',
