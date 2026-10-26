@@ -1,0 +1,46 @@
+{
+  "$schema": "https://typedoc.org/schema.json",
+  "name": "React Native Starter",
+  "entryPoints": [
+    "src/shared/limits.ts",
+    "src/shared/numbers.ts",
+    "src/shared/schemas.ts",
+    "src/lib/api-client.ts",
+    "src/lib/config.ts",
+    "src/lib/session.ts",
+    "src/lib/preferences.ts",
+    "src/lib/i18n/index.ts",
+    "src/lib/i18n/en.ts",
+    "src/lib/query-client.ts",
+    "src/server/app.ts",
+    "src/server/http.ts",
+    "src/server/accounts.ts",
+    "src/server/passwords.ts",
+    "src/server/sessions.ts",
+    "src/server/rate-limit.ts",
+    "src/server/tasks.ts",
+    "src/theme/index.ts"
+  ],
+  "projectDocuments": [
+    "Documentation/GettingStarted.md",
+    "Documentation/AddingAFeature.md",
+    "Documentation/Deploying.md",
+    "Documentation/Security.md"
+  ],
+  "readme": "none",
+  "out": "docs/api",
+  "excludePrivate": true,
+  "excludeInternal": true,
+  "includeVersion": true,
+  "githubPages": true,
+  "sourceLinkTemplate": "https://github.com/muhittincamdali/ReactNativeStarter/blob/main/{path}#L{line}",
+  "navigationLinks": {
+    "GitHub": "https://github.com/muhittincamdali/ReactNativeStarter"
+  },
+  "validation": {
+    "notExported": true,
+    "invalidLink": true,
+    "notDocumented": false
+  },
+  "treatWarningsAsErrors": true
+}
