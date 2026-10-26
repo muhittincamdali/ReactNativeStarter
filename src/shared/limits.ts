@@ -34,9 +34,14 @@ export const MAX_PAGE_SIZE = 100;
 /** Accounts the in-memory store keeps. Sign-up returns `503 capacity` beyond this. */
 export const MAX_USERS = 10_000;
 
-/** Sessions kept per account and in total; the oldest is dropped first. */
+/** Sessions kept per account; a new session replaces the account's oldest. */
 export const MAX_SESSIONS_PER_USER = 10;
-export const MAX_SESSIONS = 20_000;
+
+/**
+ * Sessions kept in total: room for every account's sessions, so the limit is never reached and
+ * one account's sessions never push out another's.
+ */
+export const MAX_SESSIONS = MAX_USERS * MAX_SESSIONS_PER_USER;
 
 /** How long a session token stays valid, in milliseconds (30 days). */
 export const SESSION_TTL_MS = 30 * 24 * 60 * 60 * 1000;

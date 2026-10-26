@@ -110,10 +110,60 @@ describe('SessionStore', () => {
     await expect(store.resolve(third)).resolves.toBe('user-1');
   });
 
-  it('keeps at most maxTotal sessions', async () => {
-    const store = new SessionStore(options);
-    for (let i = 0; i < 50; i += 1) await store.create(`user-${i}`);
-    expect(store.size).toBe(5);
+  it('refuses a new session with 503 when the table is full, keeping the others', async () => {
+    const store = new SessionStore({ ttlMs: 1000, maxPerUser: 2, maxTotal: 3 });
+    const first = await store.create('user-1');
+    const second = await store.create('user-1');
+    const other = await store.create('user-2');
+    await expect(store.create('user-3')).rejects.toMatchObject({ status: 503, code: 'capacity' });
+    for (let i = 0; i < 50; i += 1) {
+      await expect(store.create(`spray-${i}`)).rejects.toMatchObject({ status: 503 });
+    }
+    await expect(store.resolve(first)).resolves.toBe('user-1');
+    await expect(store.resolve(second)).resolves.toBe('user-1');
+    await expect(store.resolve(other)).resolves.toBe('user-2');
+    expect(store.size).toBe(3);
+  });
+
+  it('lets an account at its own limit replace its oldest session when the table is full', async () => {
+    const store = new SessionStore({ ttlMs: 1000, maxPerUser: 2, maxTotal: 3 });
+    const first = await store.create('user-1');
+    await store.create('user-1');
+    const other = await store.create('user-2');
+    const third = await store.create('user-1');
+    await expect(store.resolve(first)).resolves.toBeNull();
+    await expect(store.resolve(third)).resolves.toBe('user-1');
+    await expect(store.resolve(other)).resolves.toBe('user-2');
+  });
+
+  it('makes room from expired sessions only', async () => {
+    const time = clock();
+    const store = new SessionStore({ ttlMs: 1000, maxPerUser: 2, maxTotal: 2, now: time.now });
+    await store.create('user-1');
+    time.advance(500);
+    const live = await store.create('user-2');
+    await expect(store.create('user-3')).rejects.toMatchObject({ status: 503 });
+    time.advance(500);
+    const next = await store.create('user-3');
+    await expect(store.resolve(live)).resolves.toBe('user-2');
+    await expect(store.resolve(next)).resolves.toBe('user-3');
+    expect(store.size).toBe(2);
+  });
+
+  it('counts parallel sessions of one account against its limit', async () => {
+    const store = new SessionStore({ ttlMs: 1000, maxPerUser: 2, maxTotal: 10 });
+    const tokens = await Promise.all(Array.from({ length: 6 }, () => store.create('user-1')));
+    const resolved = await Promise.all(tokens.map((token) => store.resolve(token)));
+    expect(resolved.filter((id) => id === 'user-1')).toHaveLength(2);
+    expect(store.size).toBe(2);
+  });
+
+  it('frees the slot of a revoked session', async () => {
+    const store = new SessionStore({ ttlMs: 1000, maxPerUser: 2, maxTotal: 2 });
+    const token = await store.create('user-1');
+    await store.create('user-2');
+    await store.revoke(token);
+    await expect(store.create('user-3')).resolves.toEqual(expect.any(String));
   });
 
   it('does not resolve an unknown token', async () => {
