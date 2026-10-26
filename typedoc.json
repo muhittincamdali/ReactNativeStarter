@@ -15,6 +15,8 @@
     "src/server/app.ts",
     "src/server/http.ts",
     "src/server/accounts.ts",
+    "src/server/auth-limiter.ts",
+    "src/server/client-address.ts",
     "src/server/passwords.ts",
     "src/server/sessions.ts",
     "src/server/rate-limit.ts",
