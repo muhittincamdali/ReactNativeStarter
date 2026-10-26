@@ -3,7 +3,6 @@
  *
  * @module
  */
-import Constants from 'expo-constants';
 import { Platform } from 'react-native';
 
 import {
@@ -57,8 +56,8 @@ export type Api = ReturnType<typeof createApi>;
 export const apiBaseUrl = resolveApiBaseUrl({
   envUrl: process.env.EXPO_PUBLIC_API_URL,
   platform: Platform.OS,
-  hostUri: Constants.expoConfig?.hostUri,
-  isDev: __DEV__,
+  // Read through globalThis: babel-preset-expo rewrites `typeof window` to "undefined" on native.
+  locationOrigin: (globalThis as { location?: { origin?: string } }).location?.origin,
 });
 
 /** The app-wide API, sending the current session token. */

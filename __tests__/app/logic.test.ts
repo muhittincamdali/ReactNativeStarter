@@ -12,7 +12,7 @@ import type { Task, TaskPage } from '@/shared/schemas';
 import { palettes, resolveScheme } from '@/theme';
 
 describe('resolveApiBaseUrl', () => {
-  const base = { envUrl: undefined, platform: 'ios', hostUri: undefined, isDev: false };
+  const base = { envUrl: undefined, platform: 'ios', locationOrigin: undefined };
 
   it('uses EXPO_PUBLIC_API_URL without a trailing slash', () => {
     expect(resolveApiBaseUrl({ ...base, envUrl: 'https://api.example.com/' })).toBe(
@@ -33,22 +33,35 @@ describe('resolveApiBaseUrl', () => {
     expect(() => resolveApiBaseUrl({ ...base, envUrl })).toThrow(/EXPO_PUBLIC_API_URL/);
   });
 
+  it('prefers EXPO_PUBLIC_API_URL over the location origin', () => {
+    expect(
+      resolveApiBaseUrl({
+        ...base,
+        envUrl: 'https://api.example.com',
+        locationOrigin: 'http://localhost:8081',
+      }),
+    ).toBe('https://api.example.com');
+  });
+
   it('uses the same origin on the web', () => {
     expect(resolveApiBaseUrl({ ...base, platform: 'web' })).toBe('');
   });
 
-  it('uses the development server in a development build', () => {
-    expect(resolveApiBaseUrl({ ...base, isDev: true, hostUri: '192.168.1.20:8081' })).toBe(
+  it('uses the origin Expo gives window.location on iOS and Android', () => {
+    expect(resolveApiBaseUrl({ ...base, locationOrigin: 'http://192.168.1.20:8081' })).toBe(
       'http://192.168.1.20:8081',
     );
   });
 
-  it('ignores a development server address that is not host:port', () => {
-    expect(resolveApiBaseUrl({ ...base, isDev: true, hostUri: 'evil.com/path?x' })).toBeNull();
-  });
+  it.each(['null', 'file://', 'not a url', 'javascript:alert(1)'])(
+    'ignores the location origin %p',
+    (locationOrigin) => {
+      expect(resolveApiBaseUrl({ ...base, locationOrigin })).toBeNull();
+    },
+  );
 
-  it('has no address in a release build without EXPO_PUBLIC_API_URL', () => {
-    expect(resolveApiBaseUrl({ ...base, hostUri: '192.168.1.20:8081' })).toBeNull();
+  it('has no address when neither is set', () => {
+    expect(resolveApiBaseUrl(base)).toBeNull();
   });
 });
 

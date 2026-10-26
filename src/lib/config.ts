@@ -4,28 +4,27 @@
  * @module
  */
 
-/** Inputs of {@link resolveApiBaseUrl}, read from the environment by {@link apiBaseUrl}. */
+/** Inputs of {@link resolveApiBaseUrl}, read from the environment by `apiBaseUrl` in src/lib/api.ts. */
 export interface ApiUrlInputs {
   /** `EXPO_PUBLIC_API_URL`, inlined at build time. */
   envUrl: string | undefined;
   /** `Platform.OS`. */
   platform: string;
-  /** Host and port of the development server (`Constants.expoConfig.hostUri`). */
-  hostUri: string | undefined;
-  /** `__DEV__`. */
-  isDev: boolean;
+  /**
+   * `window.location.origin` on iOS and Android. Expo sets it to the development server in a
+   * development build, and to the `origin` of the expo-router config plugin in a release build.
+   */
+  locationOrigin: string | undefined;
 }
-
-const HOST_URI = /^[A-Za-z0-9.-]{1,253}(:[0-9]{1,5})?$|^\[[0-9A-Fa-f:.]{2,45}\](:[0-9]{1,5})?$/;
 
 /**
  * The origin the app sends API requests to, without a trailing slash, or `null` when there is
- * none (a release build without `EXPO_PUBLIC_API_URL`).
+ * none (a release build with neither `EXPO_PUBLIC_API_URL` nor an expo-router `origin`).
  *
  * 1. `EXPO_PUBLIC_API_URL` when it is set; it must be an `http:` or `https:` URL.
  * 2. On the web, `''`: the API routes are served by the same origin as the page.
- * 3. In a development build, the Expo development server (`http://<hostUri>`), which serves the
- *    API routes next to the JavaScript bundle.
+ * 3. On iOS and Android, the origin Expo gives `window.location`: the development server, which
+ *    serves the API routes next to the JavaScript bundle, or the expo-router `origin` setting.
  *
  * @throws Error when `EXPO_PUBLIC_API_URL` is set but is not an http(s) URL, so a typo fails at
  * start-up instead of on the first request.
@@ -33,8 +32,7 @@ const HOST_URI = /^[A-Za-z0-9.-]{1,253}(:[0-9]{1,5})?$|^\[[0-9A-Fa-f:.]{2,45}\](
 export function resolveApiBaseUrl({
   envUrl,
   platform,
-  hostUri,
-  isDev,
+  locationOrigin,
 }: ApiUrlInputs): string | null {
   const configured = envUrl?.trim();
   if (configured) {
@@ -53,6 +51,11 @@ export function resolveApiBaseUrl({
     return `${url.origin}${url.pathname}`.replace(/\/+$/, '');
   }
   if (platform === 'web') return '';
-  if (isDev && hostUri && HOST_URI.test(hostUri)) return `http://${hostUri}`;
-  return null;
+  if (!locationOrigin) return null;
+  try {
+    const url = new URL(locationOrigin);
+    return url.protocol === 'https:' || url.protocol === 'http:' ? url.origin : null;
+  } catch {
+    return null;
+  }
 }
