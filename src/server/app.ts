@@ -24,6 +24,7 @@ import {
 
 import { AccountService } from './accounts';
 import { AuthLimiter } from './auth-limiter';
+import { clientAddressSecret } from './client-address';
 import { SessionStore } from './sessions';
 import { MemoryTaskRepository, type TaskRepository } from './tasks';
 
@@ -100,9 +101,22 @@ export function createServerApp(options: ServerAppOptions = {}): ServerApp {
 // Kept on globalThis so that the development server's module reloads do not sign everyone out.
 const holder = globalThis as typeof globalThis & { __reactNativeStarterServer?: ServerApp };
 
+/**
+ * Said once, when the process-wide server starts without `CLIENT_ADDRESS_SECRET`. It holds no
+ * request data, which is why it is the one console line the API writes.
+ */
+export const UNKNOWN_ADDRESSES_WARNING =
+  'CLIENT_ADDRESS_SECRET is not set, so the API does not know client addresses: sign-in and ' +
+  'sign-up are slowed down for everyone instead of limited per client. Serve the API with ' +
+  '`npm run serve`, or see Documentation/Deploying.md#client-address.';
+
 /** The process-wide server used by the route files. */
 export function getServerApp(): ServerApp {
-  holder.__reactNativeStarterServer ??= createServerApp();
+  if (!holder.__reactNativeStarterServer) {
+    holder.__reactNativeStarterServer = createServerApp();
+    // eslint-disable-next-line no-console -- see UNKNOWN_ADDRESSES_WARNING
+    if (clientAddressSecret() === null) console.warn(UNKNOWN_ADDRESSES_WARNING);
+  }
   return holder.__reactNativeStarterServer;
 }
 

@@ -6,7 +6,12 @@ import { POST as signUp } from '@/app/api/auth/sign-up+api';
 import { GET as health } from '@/app/api/health+api';
 import { DELETE as deleteTask, PATCH as patchTask } from '@/app/api/tasks/[id]+api';
 import { GET as listTasks, POST as createTask } from '@/app/api/tasks+api';
-import { createServerApp, setServerApp } from '@/server/app';
+import {
+  createServerApp,
+  getServerApp,
+  setServerApp,
+  UNKNOWN_ADDRESSES_WARNING,
+} from '@/server/app';
 import { sessionSchema, taskPageSchema, taskSchema } from '@/shared/schemas';
 
 const BASE = 'http://localhost:8081';
@@ -57,6 +62,31 @@ beforeEach(() => {
 afterAll(() => {
   setServerApp(undefined);
   delete process.env.CLIENT_ADDRESS_SECRET;
+});
+
+describe('server start', () => {
+  afterEach(() => jest.restoreAllMocks());
+
+  it('warns once when it cannot know client addresses', () => {
+    const warn = jest.spyOn(console, 'warn').mockImplementation(() => {});
+    delete process.env.CLIENT_ADDRESS_SECRET;
+    try {
+      setServerApp(undefined);
+      getServerApp();
+      getServerApp();
+      expect(warn).toHaveBeenCalledTimes(1);
+      expect(warn).toHaveBeenCalledWith(UNKNOWN_ADDRESSES_WARNING);
+    } finally {
+      process.env.CLIENT_ADDRESS_SECRET = SECRET;
+    }
+  });
+
+  it('does not warn when the server in front passes client addresses', () => {
+    const warn = jest.spyOn(console, 'warn').mockImplementation(() => {});
+    setServerApp(undefined);
+    getServerApp();
+    expect(warn).not.toHaveBeenCalled();
+  });
 });
 
 describe('health', () => {
