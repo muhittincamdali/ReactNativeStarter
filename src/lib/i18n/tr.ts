@@ -1,0 +1,71 @@
+import type { MessageKey } from './en';
+
+/** Turkish strings. A missing or extra key is a type error. */
+export const tr: Record<MessageKey, string> = {
+  'app.name': 'Starter',
+
+  'auth.signIn.title': 'Tekrar hoş geldiniz',
+  'auth.signIn.subtitle': 'Görevlerinizi görmek için giriş yapın.',
+  'auth.signIn.submit': 'Giriş yap',
+  'auth.signIn.switch': 'Hesabınız yok mu? Hesap oluşturun',
+  'auth.signUp.title': 'Hesap oluşturun',
+  'auth.signUp.subtitle': 'Görevleriniz kendi sunucunuzda tutulur.',
+  'auth.signUp.submit': 'Hesap oluştur',
+  'auth.signUp.switch': 'Hesabınız var mı? Giriş yapın',
+
+  'fields.name': 'Ad',
+  'fields.email': 'E-posta',
+  'fields.password': 'Parola',
+  'fields.passwordHint': 'En az 8 karakter.',
+
+  'tasks.title': 'Görevler',
+  'tasks.greeting': 'Merhaba {name}',
+  'tasks.open': '{count} açık',
+  'tasks.newPlaceholder': 'Görev ekleyin',
+  'tasks.add': 'Ekle',
+  'tasks.empty': 'Henüz görev yok',
+  'tasks.emptyHint': 'İlk görevinizi yukarıdan ekleyin.',
+  'tasks.delete': '{title} görevini sil',
+  'tasks.toggle': '{title} görevini tamamlandı olarak işaretle',
+  'tasks.toggleBack': '{title} görevini tamamlanmadı olarak işaretle',
+  'tasks.loadError': 'Görevler yüklenemedi.',
+
+  'settings.title': 'Ayarlar',
+  'settings.appearance': 'Görünüm',
+  'settings.appearance.system': 'Sistem',
+  'settings.appearance.light': 'Açık',
+  'settings.appearance.dark': 'Koyu',
+  'settings.language': 'Dil',
+  'settings.language.system': 'Sistem',
+  'settings.account': 'Hesap',
+  'settings.signOut': 'Çıkış yap',
+  'settings.about': 'Hakkında',
+  'settings.version': 'Sürüm',
+  'settings.server': 'Sunucu',
+  'settings.sameOrigin': 'Bu web sitesi',
+  'settings.notConfigured': 'Ayarlanmadı',
+
+  'common.retry': 'Tekrar dene',
+  'notFound.title': 'Bu ekran yok.',
+  'notFound.link': 'Başlangıç ekranına git',
+
+  'validation.required': 'Bu alanı doldurun.',
+  'validation.tooLong': 'Bu çok uzun.',
+  'validation.email': 'ad@example.com gibi bir e-posta adresi girin.',
+  'validation.emailTaken': 'Bu e-posta adresiyle bir hesap var. Giriş yapın.',
+  'validation.passwordTooShort': 'En az 8 karakter kullanın.',
+  'validation.invalidCharacters': 'Satır sonlarını ve görünmeyen denetim karakterlerini kaldırın.',
+  'validation.nothingToUpdate': 'Değişecek bir şey yok.',
+  'validation.invalid': 'Bu değer geçerli değil.',
+
+  'errors.config':
+    'Uygulamada sunucu adresi yok. EXPO_PUBLIC_API_URL değerini ayarlayıp yeniden derleyin.',
+  'errors.network': 'Sunucuya bağlanılamadı. Ağınızı denetleyip tekrar deneyin.',
+  'errors.timeout': 'Sunucu zamanında yanıt vermedi. Tekrar deneyin.',
+  'errors.invalidResponse': 'Sunucu beklenmeyen bir yanıt gönderdi.',
+  'errors.server': 'Sunucuda bir sorun oluştu. Daha sonra tekrar deneyin.',
+  'errors.invalidCredentials': 'E-posta adresi ya da parola yanlış.',
+  'errors.tooManyAttempts': 'Çok fazla başarısız deneme. Birkaç dakika bekleyip tekrar deneyin.',
+  'errors.taskLimit': 'En fazla görev sayısına ulaştınız. Önce bazılarını silin.',
+  'errors.unknown': 'Bir sorun oluştu. Tekrar deneyin.',
+};
