@@ -46,14 +46,12 @@ export const MAX_SIGN_UPS_PER_CLIENT = 10;
 export const MAX_SIGN_UPS_PER_NETWORK = 50;
 export const SIGN_UP_WINDOW_MS = 60 * 60 * 1000;
 
-/** Sessions kept per account; a new session replaces the account's oldest. */
-export const MAX_SESSIONS_PER_USER = 10;
-
 /**
- * Sessions kept in total: room for every account's sessions, so the limit is never reached and
- * one account's sessions never push out another's.
+ * Sessions kept per account; a new session replaces the account's oldest. The session table has
+ * room for this many for every account (`createServerApp()`), so one account's sessions never
+ * push out another's.
  */
-export const MAX_SESSIONS = MAX_USERS * MAX_SESSIONS_PER_USER;
+export const MAX_SESSIONS_PER_USER = 10;
 
 /** How long a session token stays valid, in milliseconds (30 days). */
 export const SESSION_TTL_MS = 30 * 24 * 60 * 60 * 1000;

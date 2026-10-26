@@ -236,6 +236,48 @@ describe('auth routes', () => {
     expect(await full.json()).toMatchObject({ error: { code: 'capacity' } });
   });
 
+  it('never creates more accounts than maxUsers from parallel sign-ups', async () => {
+    setServerApp(createServerApp({ iterations: 1_000, maxUsers: 2 }));
+    const results = await Promise.all(
+      Array.from({ length: 6 }, (_, i) =>
+        signUp(
+          request('/api/auth/sign-up', {
+            method: 'POST',
+            body: { name: 'Ada', email: `user-${i}@example.com`, password: 'correct horse' },
+            client: `203.0.113.${i + 1}`,
+          }),
+        ),
+      ),
+    );
+    const statuses = results.map((response) => response.status);
+    expect(statuses.filter((status) => status === 201)).toHaveLength(2);
+    expect(statuses.filter((status) => status === 503)).toHaveLength(4);
+  });
+
+  it('keeps 100 parallel sign-ups within maxUsers and creates one address once', async () => {
+    setServerApp(createServerApp({ iterations: 1_000, maxUsers: 10 }));
+    const results = await Promise.all(
+      Array.from({ length: 100 }, (_, i) =>
+        signUp(
+          request('/api/auth/sign-up', {
+            method: 'POST',
+            body: {
+              name: 'Ada',
+              email: i < 50 ? 'same@example.com' : `user-${i}@example.com`,
+              password: 'correct horse',
+            },
+            client: `2001:db8:${i.toString(16)}::1`,
+          }),
+        ),
+      ),
+    );
+    const statuses = results.map((response) => response.status);
+    expect(statuses.filter((status) => status === 201)).toHaveLength(10);
+    expect(statuses.slice(0, 50).filter((status) => status === 201)).toHaveLength(1);
+    expect(statuses.filter((status) => status === 409)).toHaveLength(49);
+    expect(statuses.filter((status) => status === 503)).toHaveLength(41);
+  });
+
   it('counts parallel attempts, so they cannot all pass the limit at once', async () => {
     await register();
     const results = await Promise.all(

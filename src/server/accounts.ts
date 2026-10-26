@@ -37,6 +37,8 @@ export interface AccountServiceOptions {
 export class AccountService {
   private readonly users = new Map<string, StoredUser>();
   private readonly idsByEmail = new Map<string, string>();
+  // Addresses of sign-ups that are still hashing: each holds a slot of the account table.
+  private readonly pendingEmails = new Set<string>();
   private readonly iterations: number;
   private readonly newId: () => string;
   // Hash checked when an e-mail address is unknown, so a wrong address takes as long to reject
@@ -55,20 +57,27 @@ export class AccountService {
    */
   signUp(input: z.output<typeof signUpSchema>, address: ClientAddress | null): Promise<Session> {
     return this.options.signUpLimiter.run({ address }, async () => {
-      if (this.idsByEmail.has(input.email)) throw emailTaken();
-      if (this.users.size >= this.options.maxUsers) {
+      // The address and the slot are taken before the first await, so parallel sign-ups can
+      // neither create one address twice nor pass maxUsers together.
+      if (this.idsByEmail.has(input.email) || this.pendingEmails.has(input.email)) {
+        throw emailTaken();
+      }
+      if (this.users.size + this.pendingEmails.size >= this.options.maxUsers) {
         throw new HttpError(503, 'capacity', 'The server cannot create more accounts.');
       }
-      const passwordHash = await hashPassword(input.password, this.iterations);
-      // Checked again: another sign-up for the same address may have finished while hashing.
-      if (this.idsByEmail.has(input.email)) throw emailTaken();
-      const user: StoredUser = {
-        id: this.newId(),
-        name: input.name,
-        email: input.email,
-        passwordHash,
-        knownClients: [],
-      };
+      this.pendingEmails.add(input.email);
+      let user: StoredUser;
+      try {
+        user = {
+          id: this.newId(),
+          name: input.name,
+          email: input.email,
+          passwordHash: await hashPassword(input.password, this.iterations),
+          knownClients: [],
+        };
+      } finally {
+        this.pendingEmails.delete(input.email);
+      }
       this.users.set(user.id, user);
       this.idsByEmail.set(user.email, user.id);
       return this.startSession(user, address);

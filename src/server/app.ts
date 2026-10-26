@@ -7,7 +7,6 @@
 import {
   MAX_PENDING_SIGN_INS_PER_ACCOUNT,
   MAX_RATE_LIMIT_KEYS,
-  MAX_SESSIONS,
   MAX_SESSIONS_PER_USER,
   MAX_SIGN_IN_ATTEMPTS_PER_CLIENT,
   MAX_SIGN_IN_ATTEMPTS_PER_NETWORK,
@@ -54,10 +53,12 @@ export interface ServerAppOptions {
 /** Builds a new server with empty stores. */
 export function createServerApp(options: ServerAppOptions = {}): ServerApp {
   const now = options.now ?? Date.now;
+  const maxUsers = options.maxUsers ?? MAX_USERS;
   const sessions = new SessionStore({
     ttlMs: SESSION_TTL_MS,
     maxPerUser: MAX_SESSIONS_PER_USER,
-    maxTotal: MAX_SESSIONS,
+    // Room for every account's sessions, whatever maxUsers is, so the table is never full.
+    maxTotal: maxUsers * MAX_SESSIONS_PER_USER,
     now,
   });
   const shared = {
@@ -85,7 +86,7 @@ export function createServerApp(options: ServerAppOptions = {}): ServerApp {
       sessions,
       signInLimiter,
       signUpLimiter,
-      maxUsers: options.maxUsers ?? MAX_USERS,
+      maxUsers,
       ...(options.iterations === undefined ? {} : { iterations: options.iterations }),
     }),
     tasks: new MemoryTaskRepository({
