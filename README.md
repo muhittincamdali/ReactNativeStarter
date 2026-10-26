@@ -1,296 +1,257 @@
-<p align="center">
-  <img src="https://img.shields.io/badge/Swift-6.0-FA7343?style=for-the-badge&logo=swift&logoColor=white" alt="Swift 6.0"/>
-  <img src="https://img.shields.io/badge/Platform-iOS%20|%20macOS%20|%20visionOS-007AFF?style=for-the-badge&logo=apple&logoColor=white" alt="Platform"/>
-  <img src="https://img.shields.io/badge/Standard-Unified%20Core-5856D6?style=for-the-badge" alt="Standard"/>
-</p>
+<!-- brand:start -->
 
----
+<p align="center"><picture><source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/muhittincamdali/ReactNativeStarter/main/.github/brand/banner-dark.svg"><source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/muhittincamdali/ReactNativeStarter/main/.github/brand/banner-light.svg"><img src="https://raw.githubusercontent.com/muhittincamdali/ReactNativeStarter/main/.github/brand/banner-light.svg" alt="React Native Starter: An Expo app with its own API: accounts, a task list, light and dark themes, two languages and tests."></picture></p>
 
-> **🛡️ PART OF THE 2026 UNIFIED CORE**
-> This repository is a verified component of 'The Endless March' initiative. Purified for Swift 6, zero-dependency, and engineered for maximum hardware saturation.
-> 
-> *Flagship Engines:* [SwiftNetwork](https://github.com/muhittincamdali/SwiftNetwork) | [SwiftAI](https://github.com/muhittincamdali/SwiftAI) | [LiquidGlassKit](https://github.com/muhittincamdali/LiquidGlassKit)
-
----
+<!-- lang-selector:start -->
+<p align="center"><a href="README.md">English</a> · <a href="README.tr.md">Türkçe</a> · <a href="README.zh-CN.md">简体中文</a> · <a href="README.ja.md">日本語</a> · <a href="README.ko.md">한국어</a> · <a href="README.es.md">Español</a> · <a href="README.de.md">Deutsch</a> · <a href="README.fr.md">Français</a> · <a href="README.pt-BR.md">Português (Brasil)</a> · <a href="README.ru.md">Русский</a></p>
+<!-- lang-selector:end -->
 
 <p align="center">
-  <img src="https://img.icons8.com/color/200/react-native.png" alt="ReactNativeStarter" width="120"/>
-</p>
-
-<h1 align="center">ReactNativeStarter</h1>
-
-## 🚀 Killer Feature: C++ TurboModule Architecture
-Ready for the New Architecture. This starter completely bypasses the legacy React Native bridge, utilizing C++ TurboModules for synchronous, high-performance native method calls.
-
-<p align="center">
-  <strong>Production-ready React Native boilerplate with TypeScript, React Navigation, Zustand & React Query</strong>
+<a href="https://github.com/muhittincamdali/ReactNativeStarter/actions/workflows/ci.yml"><img src="https://github.com/muhittincamdali/ReactNativeStarter/actions/workflows/ci.yml/badge.svg" alt="CI status"></a>
+<a href="https://github.com/muhittincamdali/ReactNativeStarter/releases"><picture><source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/muhittincamdali/ReactNativeStarter/main/.github/brand/badge-version-dark.svg"><source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/muhittincamdali/ReactNativeStarter/main/.github/brand/badge-version-light.svg"><img src="https://raw.githubusercontent.com/muhittincamdali/ReactNativeStarter/main/.github/brand/badge-version-light.svg" alt="Latest version: v1.0.0"></picture></a>
+<a href="https://github.com/muhittincamdali/ReactNativeStarter/blob/main/package.json"><picture><source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/muhittincamdali/ReactNativeStarter/main/.github/brand/badge-language-dark.svg"><source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/muhittincamdali/ReactNativeStarter/main/.github/brand/badge-language-light.svg"><img src="https://raw.githubusercontent.com/muhittincamdali/ReactNativeStarter/main/.github/brand/badge-language-light.svg" alt="Language version: Node.js 22.14+"></picture></a>
+<a href="https://github.com/muhittincamdali/ReactNativeStarter/blob/main/LICENSE"><picture><source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/muhittincamdali/ReactNativeStarter/main/.github/brand/badge-license-dark.svg"><source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/muhittincamdali/ReactNativeStarter/main/.github/brand/badge-license-light.svg"><img src="https://raw.githubusercontent.com/muhittincamdali/ReactNativeStarter/main/.github/brand/badge-license-light.svg" alt="License: MIT"></picture></a>
 </p>
 
 <p align="center">
-  <a href="https://github.com/muhittincamdali/ReactNativeStarter/actions/workflows/ci.yml">
-    <img src="https://github.com/muhittincamdali/ReactNativeStarter/actions/workflows/ci.yml/badge.svg" alt="CI"/>
-  </a>
-  <img src="https://img.shields.io/badge/React_Native-0.74-61DAFB.svg?logo=react" alt="React Native"/>
-  <img src="https://img.shields.io/badge/Expo-51-000020.svg?logo=expo" alt="Expo"/>
-  <img src="https://img.shields.io/badge/TypeScript-5.3-3178C6.svg?logo=typescript&logoColor=white" alt="TypeScript"/>
-  <img src="https://img.shields.io/badge/license-MIT-green.svg" alt="License"/>
+<a href="#quick-start"><picture><source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/muhittincamdali/ReactNativeStarter/main/.github/brand/button-start-en-dark.svg"><source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/muhittincamdali/ReactNativeStarter/main/.github/brand/button-start-en-light.svg"><img src="https://raw.githubusercontent.com/muhittincamdali/ReactNativeStarter/main/.github/brand/button-start-en-light.svg" alt="Get started"></picture></a>
+<a href="https://muhittincamdali.github.io/ReactNativeStarter/"><picture><source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/muhittincamdali/ReactNativeStarter/main/.github/brand/button-docs-en-dark.svg"><source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/muhittincamdali/ReactNativeStarter/main/.github/brand/button-docs-en-light.svg"><img src="https://raw.githubusercontent.com/muhittincamdali/ReactNativeStarter/main/.github/brand/button-docs-en-light.svg" alt="Documentation"></picture></a>
+<a href="https://github.com/muhittincamdali/ReactNativeStarter/tree/main/Examples"><picture><source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/muhittincamdali/ReactNativeStarter/main/.github/brand/button-examples-en-dark.svg"><source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/muhittincamdali/ReactNativeStarter/main/.github/brand/button-examples-en-light.svg"><img src="https://raw.githubusercontent.com/muhittincamdali/ReactNativeStarter/main/.github/brand/button-examples-en-light.svg" alt="Examples"></picture></a>
 </p>
 
----
+<!-- brand:end -->
 
-## Why This Starter?
+An Expo app to start from: it runs on iOS, Android and the web, and it carries its own backend as
+Expo Router API routes, so sign-up, sign-in and a task list work end to end after `npm ci` and
+`npx expo start`, with no other server to set up. It is for developers who want a working app with
+accounts, data, themes, translations and tests on day one, written in TypeScript they can read and
+change, rather than a folder of empty screens.
 
-Setting up a React Native project with proper architecture, auth flows, navigation, and state management takes days. **ReactNativeStarter** gives you all of that out of the box — with 5 production-quality screens, CI/CD pipelines, and a scalable project structure.
+## Highlights
 
-## ✨ Features
+- **A backend in the same project** — the API routes in `src/app/api` handle sign-up, sign-in,
+  sign-out and task create, list, update and delete. The development server runs them next to the
+  app, and `npm run build` exports them for Node.js, EAS Hosting, Vercel, Netlify or Cloudflare.
+- **One schema for both sides** — request and response shapes are zod schemas in `src/shared`; the
+  API validates every body with them and the app parses every answer with them.
+- **Accounts done carefully** — PBKDF2 password hashes (600,000 iterations), random session tokens
+  stored only as SHA-256 hashes, tokens in the iOS Keychain and Android Keystore, five failed
+  sign-ins per address per 15 minutes, and the same answer for a wrong address and a wrong password.
+- **Bounded by design** — 16 KiB request bodies read as a stream, 1 MiB answers, 500 tasks per
+  account, pages of at most 100, strict integer query parameters and capped session and limiter
+  tables: no request can make the server hold more or loop longer.
+- **Ready for people** — light and dark themes, English and Turkish with typed keys, offline-tolerant
+  sign-in, optimistic task updates, accessibility roles and labels, and 48-point touch targets.
+- **Tested from the schema to the screen** — 219 Jest tests, including one that renders the
+  real screens against the real API handlers in the same process, plus Maestro flows that run the
+  built app on an iOS simulator.
 
----
+## Quick start
 
-## 🚀 Performance First: The 2026 Standard
-While React Native is cross-platform, we enforce the same high-integrity performance standards as our native Swift flagships.
+**1. Get the code**
 
-- **Zero-Unnecessary-Bloat**: Every dependency is audited for binary size and runtime overhead.
-- **Native-Like Haptics**: Integrated with `expo-haptics` for tactile feedback.
-- **Calibrated Animations**: Built on `react-native-reanimated` for 60fps interaction.
-
----
-
-| Category | Stack |
-|----------|-------|
-| 📱 **Framework** | React Native 0.74 + Expo 51 |
-| 🧭 **Navigation** | React Navigation v6 (Native Stack + Bottom Tabs) |
-| 🔄 **State** | Zustand with persist & devtools middleware |
-| 🌐 **Data Fetching** | TanStack React Query (infinite scroll, caching) |
-| 🔐 **Auth** | Complete auth flow (login, register, biometrics, social) |
-| 📝 **Forms** | Custom validation + Zod schemas |
-| 🎨 **Theming** | Light/Dark/System with full design token system |
-| 💫 **Animations** | React Native Reanimated v3 |
-| 🧪 **Testing** | Jest + React Native Testing Library |
-| 📦 **TypeScript** | Strict mode with path aliases |
-| 🚀 **CI/CD** | GitHub Actions + EAS Build + Release automation |
-| 🔔 **Notifications** | Expo Push Notifications with channels |
-| 🔒 **Security** | Expo SecureStore for tokens & credentials |
-| ♿ **Accessibility** | Roles, labels, and state across all components |
-
-## 📱 Screens
-
-### 5 fully-built screens included:
-
-| Screen | Description |
-|--------|-------------|
-| **Login** | Email/password auth, social login (Google, Apple, Facebook), biometric auth, remember me |
-| **Home** | Dashboard with animated header, stats cards, quick actions, infinite-scroll feed |
-| **Profile** | User profile with parallax header, stats, menu sections, avatar editing |
-| **Settings** | Theme, notifications, security, privacy, language — all wired to Zustand |
-| **List/Detail** | Searchable list with filters, grid/list toggle, and rich detail view with hero image |
-
-Plus supporting screens: Register, Edit Profile, Forgot Password, Search, Notifications.
-
-## 🚀 Quick Start
-
-```bash
-# Clone
-git clone https://github.com/muhittincamdali/ReactNativeStarter.git
-cd ReactNativeStarter
-
-# Install
-npm install
-
-# Start (Expo Go or Dev Client)
-npm start
-
-# Platform-specific
-npm run ios
-npm run android
-npm run web
+```sh
+git clone https://github.com/muhittincamdali/ReactNativeStarter.git my-app
+cd my-app
+npm ci
 ```
 
-## 📁 Project Structure
+You need [Node.js](https://nodejs.org/) 22.14 or later. Nothing else has to be installed to try it
+in a browser.
 
-```
-src/
-├── app/                        # App entry, providers, root navigator
-│   ├── App.tsx                 # Main entry with splash, fonts, providers
-│   ├── providers.tsx           # Theme + Toast context providers
-│   └── RootNavigator.tsx       # Auth/Main navigation split
-├── components/                 # Reusable UI components
-│   ├── ui/                     # Button, Input, Card, Avatar, Loading
-│   ├── layout/                 # Container, Header, TabBar
-│   └── forms/                  # FormField, FormValidation (Zod)
-├── screens/                    # Feature screens
-│   ├── auth/                   # Login, Register + AuthViewModel
-│   ├── home/                   # Home + components (FeedCard, StatsCard, QuickActions)
-│   ├── list/                   # ListScreen, DetailScreen + components
-│   ├── profile/                # Profile, EditProfile
-│   └── settings/               # Settings with all sections
-├── hooks/                      # Custom hooks
-│   ├── useAuth.ts              # Auth state + token refresh
-│   ├── useTheme.ts             # Theme colors/typography/spacing
-│   ├── useApi.ts               # Generic API + React Query wrappers
-│   ├── useStorage.ts           # AsyncStorage + SecureStore hooks
-│   └── useNotifications.ts     # Push notification management
-├── services/                   # External services
-│   ├── api/                    # ApiClient, AuthService, UserService, interceptors
-│   ├── storage/                # AsyncStorage + SecureStorage wrappers
-│   └── notifications/          # Push notification setup
-├── store/                      # Zustand stores
-│   ├── authSlice.ts            # Auth state (user, tokens, session)
-│   ├── userSlice.ts            # User profile + stats
-│   ├── settingsSlice.ts        # App settings (theme, language, etc.)
-│   └── store.ts                # Store factory + reset helpers
-├── theme/                      # Design tokens
-│   ├── colors.ts               # Light/Dark palettes + Theme type
-│   ├── typography.ts           # Font system (display → label)
-│   └── spacing.ts              # 4px grid + border radius
-├── navigation/                 # Navigation config
-│   ├── types.ts                # Type-safe param lists
-│   └── linking.ts              # Deep link configuration
-├── types/                      # TypeScript definitions
-│   ├── models.ts               # Domain models (User, FeedItem, etc.)
-│   └── api.ts                  # API types (request, response, error)
-└── utils/                      # Utilities
-    ├── validators.ts           # Email, password, phone, URL validators
-    ├── formatters.ts           # Date, number, text formatters
-    └── helpers.ts              # Debounce, throttle, deep clone, etc.
+**2. Start it**
+
+```sh
+npx expo start
 ```
 
-## 🏗 Architecture
+This starts the app and its API together. Press **w** to open it in your browser, **i** for the iOS
+simulator, **a** for the Android emulator, or scan the QR code with the
+[Expo Go](https://expo.dev/go) app on a phone on the same network.
 
-```mermaid
-graph TD
-    A[Screens] --> B[Hooks]
-    A --> C[Components]
-    B --> D[Stores - Zustand]
-    B --> E[Services - API]
-    E --> F[API Client]
-    F --> G[Interceptors]
-    D --> H[AsyncStorage / SecureStore]
-    A --> I[Navigation - React Navigation]
-    
-    style A fill:#6366F1,color:#fff
-    style B fill:#8B5CF6,color:#fff
-    style C fill:#EC4899,color:#fff
-    style D fill:#10B981,color:#fff
-    style E fill:#F59E0B,color:#fff
+**3. Use it**
+
+Tap **New here? Create an account**, enter a name, an e-mail address and a password of at least
+eight characters, and you land on your task list. Add a task, tap the circle to complete it and
+switch to **Settings** to try the dark theme or Turkish. Edit `src/features/tasks/TasksScreen.tsx`
+and the screen updates as you save.
+
+## Installation
+
+The repository is the app: clone it as above, start your own history with
+`rm -rf .git && git init`, and make it yours:
+
+1. In `app.json`, change `name`, `slug`, `scheme`, `ios.bundleIdentifier` and `android.package`.
+2. Replace `assets/icon.svg` and run `node scripts/render-icons.mjs` to render every icon from it.
+3. Change the colours in `src/theme/index.ts` and the texts in `src/lib/i18n/`.
+
+To run it as a native development build instead of Expo Go, use `npm run ios` (macOS with Xcode) or
+`npm run android` (Android Studio).
+
+## Usage
+
+The samples below are copied from [`Examples/`](Examples), which `npm run typecheck` compiles and
+`npm test` runs.
+
+### Add an API route
+
+A file in `src/app/api` named `<name>+api.ts` answers `/api/<name>`. `handle()` turns a thrown
+`HttpError` into its answer, and `authenticate()` lets only signed-in requests through
+([`Examples/task-stats/stats+api.ts`](Examples/task-stats/stats+api.ts)):
+
+```ts
+export function GET(request: Request): Promise<Response> {
+  return handle(async () => {
+    const { accounts, tasks } = getServerApp();
+    const user = await accounts.authenticate(request);
+    let total = 0;
+    let done = 0;
+    let cursor: string | undefined;
+    for (let page = 0; page < MAX_PAGES; page += 1) {
+      const result = tasks.list(user.id, { limit: MAX_PAGE_SIZE, cursor });
+      if (!result) break;
+      total += result.items.length;
+      done += result.items.filter((task) => task.done).length;
+      if (!result.nextCursor) break;
+      cursor = result.nextCursor;
+    }
+    return json({ total, done, open: total - done });
+  });
+}
 ```
 
-### Key Patterns
+### Call it from the app
 
-- **MVVM** — Each screen has a ViewModel hook that encapsulates business logic
-- **Feature-based** — Code organized by feature, not by technical layer
-- **Barrel exports** — Clean imports via index.ts files
-- **Type-safe navigation** — Full param list types with global declaration
-- **Interceptor chain** — Auth tokens, logging, and error handling in API client
+The API client adds the session token, a time limit and a size limit, and parses the answer with a
+zod schema; a mismatch fails as an `ApiError` instead of reaching a screen
+([`Examples/task-stats/schema.ts`](Examples/task-stats/schema.ts)):
 
-## 🔐 Auth Flow
+```ts
+export const taskStatsSchema = z.object({
+  total: z.number().int().nonnegative(),
+  done: z.number().int().nonnegative(),
+  open: z.number().int().nonnegative(),
+});
 
-```
-App Launch
-  ├─ Check persisted tokens (Zustand + AsyncStorage)
-  ├─ Token valid? → Main Navigator (Home, List, Notifications, Profile)
-  └─ No token? → Auth Navigator (Login, Register, ForgotPassword)
-
-Login Flow
-  ├─ Email/Password → API call → Store tokens → Navigate to Main
-  ├─ Social Login (Google/Apple/Facebook) → OAuth → Store tokens
-  ├─ Biometric → SecureStore credentials → Refresh token → Main
-  └─ Remember Me → Save to SecureStore for biometric next time
-
-Token Management
-  ├─ Auto-refresh on app foreground
-  ├─ Periodic refresh check (60s interval)
-  └─ 401 interceptor → refresh or logout
+export function fetchTaskStats(client: ApiClient, signal?: AbortSignal): Promise<TaskStats> {
+  return client.request('/api/stats', { schema: taskStatsSchema, ...(signal ? { signal } : {}) });
+}
 ```
 
-## 🎨 Theming
+### Show it on a screen
 
-The theme system provides full design tokens:
+React Query loads the data; `errorMessageKey()` turns any failure into a translated sentence
+([`Examples/task-stats/TaskStatsCard.tsx`](Examples/task-stats/TaskStatsCard.tsx)):
 
-```typescript
-const { colors, typography, spacing } = useTheme();
+```tsx
+const stats = useQuery({ queryKey: ['task-stats'], queryFn: ({ signal }) => fetchStats(signal) });
 
-// Colors: background, surface, text, primary, error, border, etc.
-// Typography: displayLarge → labelSmall (Material Design 3 scale)
-// Spacing: 4px grid system (xs=4, sm=8, md=12, lg=16, xl=20...)
+return (
+  <View style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+    {stats.isPending ? (
+      <ActivityIndicator color={colors.accent} />
+    ) : stats.isError ? (
+      <Text style={{ color: colors.danger }}>{t(errorMessageKey(stats.error))}</Text>
+    ) : (
+      <Text accessibilityRole="summary" style={[styles.text, { color: colors.text }]}>
+        {`${stats.data.done} / ${stats.data.total}`}
+      </Text>
+    )}
+  </View>
+);
 ```
 
-Supports Light, Dark, and System themes — persisted in Zustand.
+### Keep tasks in a database
 
-## 🧪 Testing
+Tasks go through the `TaskRepository` interface. The SQLite version uses Node.js's built-in
+`node:sqlite` and passes the same contract tests as the in-memory one
+([`Examples/sqlite-repository`](Examples/sqlite-repository)). Swap it in inside
+`createServerApp()` in `src/server/app.ts`:
 
-```bash
-# Run all tests
-npm test
-
-# Watch mode
-npm run test:watch
-
-# Coverage report
-npm run test:coverage
+```ts
+tasks: new SqliteTaskRepository('data/tasks.db', { maxPerUser: MAX_TASKS_PER_USER }),
 ```
 
-Tests included for:
-- **Components** — Button rendering, press handling, variants
-- **Hooks** — useAuth state and API integration
-- **Utils** — Validators (email, password, name) and formatters
-- **Stores** — Can be extended in `__tests__/stores/`
+## Demo
 
-## 🚀 CI/CD
+| Sign in                                                 | Tasks                                            | Settings                                           |
+| ------------------------------------------------------- | ------------------------------------------------ | -------------------------------------------------- |
+| ![Sign-in screen, light](docs/images/sign-in-light.png) | ![Task list, light](docs/images/tasks-light.png) | ![Settings, light](docs/images/settings-light.png) |
+| ![Sign-in screen, dark](docs/images/sign-in-dark.png)   | ![Task list, dark](docs/images/tasks-dark.png)   | ![Settings, dark](docs/images/settings-dark.png)   |
 
-### GitHub Actions Workflows
+Captured from a Release build on an iPhone 17 Pro simulator with iOS 27, talking to the
+production server from `npm run build && npm run serve`, by
+[`scripts/capture-screenshots.sh`](scripts/capture-screenshots.sh). The script drives the
+[Maestro flow](.maestro/sign-up-and-tasks.yaml) that signs up, adds three tasks and completes one.
 
-| Workflow | Trigger | What it does |
-|----------|---------|-------------|
-| **CI** | Push/PR to main | Lint, type-check, test with coverage |
-| **EAS Build** | Tags / manual | Build iOS/Android with Expo EAS |
-| **Release** | Version tags | Auto-generate changelog + GitHub Release |
+## Documentation
 
-### EAS Build Profiles
+Reference documentation and articles:
 
-```bash
-# Development (simulator/emulator)
-eas build --profile development
+- [API reference](https://muhittincamdali.github.io/ReactNativeStarter/) — the shared schemas and
+  limits, the API client, session, translations and the server modules, built by TypeDoc
+  from the source comments.
+- [CHANGELOG.md](CHANGELOG.md) — what changed in each version.
 
-# Preview (internal testing)
-eas build --profile preview
+## Guides
 
-# Production (store submission)
-eas build --profile production
+- [Getting started](https://muhittincamdali.github.io/ReactNativeStarter/documents/Getting_started.html) — run it everywhere, the folder layout, scripts, and renaming the app.
+- [Adding a feature](https://muhittincamdali.github.io/ReactNativeStarter/documents/Adding_a_feature.html) — a schema, an API route, a client call, a screen and their tests.
+- [Deploying](https://muhittincamdali.github.io/ReactNativeStarter/documents/Deploying.html) — serve the API, keep the data, point the apps at it and build them with EAS.
+- [Security](https://muhittincamdali.github.io/ReactNativeStarter/documents/Security.html) — what the starter protects and what it leaves to you.
+
+The same guides are in [`Documentation/`](Documentation) as Markdown.
+
+## Requirements
+
+| Toolchain | Minimum version                                  |
+| --------- | ------------------------------------------------ |
+| Node.js   | 22.14                                            |
+| Expo SDK  | 58 (React Native 0.88, React 19.3)               |
+| iOS | 16.4, the deployment target of Expo SDK 58 (tested on iOS 27) |
+| Android | 7.0 (API level 24), the React Native 0.88 minimum |
+
+CI runs lint, type checks, tests and the web build on Node.js 22 and 24. The native app is built
+and its Maestro flows are run locally with Xcode 27.1.
+
+## Architecture
+
+- **Routes are files.** `src/app` holds the screens and the API routes (Expo Router). The root
+  layout keeps the splash screen up while the saved session is read, then shows the `(app)` or
+  `(auth)` group through `Stack.Protected`, so a deep link cannot open a signed-in screen signed out.
+- **The API is plain functions.** Each `+api.ts` file is a few lines that call `src/server`:
+  `http.ts` (bounded body reading, JSON answers, error mapping), `accounts.ts`, `passwords.ts`,
+  `sessions.ts`, `rate-limit.ts` and `tasks.ts`. `createServerApp()` wires them; tests build a fresh
+  one per test.
+- **Storage is behind an interface.** `TaskRepository` keeps the routes independent of where tasks
+  live; the in-memory version is the default and the SQLite example shows a database.
+- **The app's state is small.** Server data lives in React Query; the session (token and account)
+  and the preferences (appearance, language) are two zustand stores; the session is saved with
+  `expo-secure-store`, preferences with AsyncStorage, and both are validated when read back.
+- **Errors have one type.** The API answers `{ error: { code, message, fields } }`; the client turns
+  every failure into an `ApiError` with a kind (`network`, `timeout`, `http`, ...), and screens map
+  it to a translated sentence. Field errors are translation keys, so the API's checks show up under
+  the right field in the right language.
+- **Nothing is logged.** ESLint's `no-console` rule is an error in the app and the API.
+
+Run the checks locally:
+
+```sh
+npm run lint && npm run typecheck && npm test && npm run build
+npm run ios          # development build on a simulator, then in another terminal:
+npm run e2e:ios      # Maestro flows (sign-up, tasks, settings, form validation)
 ```
 
-## 📦 Scripts
+## Roadmap
 
-| Command | Description |
-|---------|-------------|
-| `npm start` | Start Expo dev server |
-| `npm run ios` | Start on iOS simulator |
-| `npm run android` | Start on Android emulator |
-| `npm run web` | Start web version |
-| `npm test` | Run Jest tests |
-| `npm run test:coverage` | Tests with coverage report |
-| `npm run lint` | ESLint check |
-| `npm run lint:fix` | ESLint auto-fix |
-| `npm run format` | Prettier format |
-| `npm run type-check` | TypeScript validation |
-| `npm run build:ios` | EAS Build for iOS |
-| `npm run build:android` | EAS Build for Android |
+- Account deletion and password reset, which App Store Review and real users need.
+- Persistent accounts and sessions next to the SQLite task repository.
+- An Android Maestro run in CI on an emulator.
 
-## 🤝 Contributing
+## Contributing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+Contributions are welcome. Read the [contributing guide](CONTRIBUTING.md) and the [code of conduct](https://github.com/muhittincamdali/.github/blob/main/CODE_OF_CONDUCT.md) before opening a pull request. Report security issues privately as described in the [security policy](SECURITY.md).
 
-1. Fork the repo
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'feat: add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+## License
 
-## 📄 License
-
-MIT License — see [LICENSE](LICENSE) for details.
-
----
-
-<p align="center">
-  Built with ❤️ by <a href="https://github.com/muhittincamdali">Muhittin Camdali</a>
-</p>
+Released under the MIT license. See [LICENSE](LICENSE).
