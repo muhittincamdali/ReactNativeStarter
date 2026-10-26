@@ -9,7 +9,7 @@ import type { signInSchema, signUpSchema, Session, User } from '@/shared/schemas
 
 import { bearerToken, HttpError } from './http';
 import { DEFAULT_ITERATIONS, hashPassword, verifyPassword } from './passwords';
-import type { FailureLimiter } from './rate-limit';
+import type { AttemptLimiter } from './rate-limit';
 import type { SessionStore } from './sessions';
 
 interface StoredUser extends User {
@@ -19,7 +19,7 @@ interface StoredUser extends User {
 /** Options of {@link AccountService}. */
 export interface AccountServiceOptions {
   sessions: SessionStore;
-  limiter: FailureLimiter;
+  limiter: AttemptLimiter;
   maxUsers: number;
   /** PBKDF2 iterations; tests lower it to keep the suite fast. */
   iterations?: number;
@@ -87,7 +87,7 @@ export class AccountService {
     const user = id === undefined ? undefined : this.users.get(id);
     // The attempt counts as a failure before the hash is checked, so parallel requests cannot all
     // pass the limit while the first ones are still hashing; a correct password clears it.
-    this.options.limiter.recordFailure(input.email);
+    this.options.limiter.record(input.email);
     const valid = await verifyPassword(input.password, user?.passwordHash ?? (await this.decoy()));
     if (!user || !valid) {
       throw new HttpError(

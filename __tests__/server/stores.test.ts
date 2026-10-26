@@ -1,4 +1,4 @@
-import { FailureLimiter } from '@/server/rate-limit';
+import { AttemptLimiter } from '@/server/rate-limit';
 import { SessionStore } from '@/server/sessions';
 import { MemoryTaskRepository } from '@/server/tasks';
 
@@ -7,50 +7,74 @@ function clock(start = 1_000_000) {
   return { now: () => now, advance: (ms: number) => (now += ms) };
 }
 
-describe('FailureLimiter', () => {
-  it('blocks a key after the allowed failures until the window ends', () => {
+describe('AttemptLimiter', () => {
+  it('blocks a key after the allowed attempts until the window ends', () => {
     const time = clock();
-    const limiter = new FailureLimiter({
-      maxFailures: 3,
+    const limiter = new AttemptLimiter({
+      maxAttempts: 3,
       windowMs: 1000,
       maxKeys: 10,
       now: time.now,
     });
-    for (let i = 0; i < 2; i += 1) limiter.recordFailure('a');
+    for (let i = 0; i < 2; i += 1) limiter.record('a');
     expect(limiter.retryAfter('a')).toBe(0);
-    limiter.recordFailure('a');
+    expect(limiter.attempts('a')).toBe(2);
+    limiter.record('a');
     expect(limiter.retryAfter('a')).toBe(1000);
     time.advance(400);
     expect(limiter.retryAfter('a')).toBe(600);
     time.advance(600);
     expect(limiter.retryAfter('a')).toBe(0);
+    expect(limiter.attempts('a')).toBe(0);
     expect(limiter.size).toBe(0);
   });
 
   it('keeps keys apart and forgets a key on reset', () => {
-    const limiter = new FailureLimiter({ maxFailures: 1, windowMs: 1000, maxKeys: 10 });
-    limiter.recordFailure('a');
+    const limiter = new AttemptLimiter({ maxAttempts: 1, windowMs: 1000, maxKeys: 10 });
+    limiter.record('a');
     expect(limiter.retryAfter('a')).toBeGreaterThan(0);
     expect(limiter.retryAfter('b')).toBe(0);
     limiter.reset('a');
     expect(limiter.retryAfter('a')).toBe(0);
   });
 
-  it('never tracks more than maxKeys, dropping expired keys first and then the oldest', () => {
+  it('keeps a locked key locked after maxKeys + 1000 new keys, refusing the new ones', () => {
     const time = clock();
-    const limiter = new FailureLimiter({
-      maxFailures: 1,
+    const limiter = new AttemptLimiter({
+      maxAttempts: 1,
       windowMs: 1000,
-      maxKeys: 3,
+      maxKeys: 100,
       now: time.now,
     });
-    limiter.recordFailure('old');
-    time.advance(1000);
-    for (const key of ['a', 'b', 'c']) limiter.recordFailure(key);
-    expect(limiter.size).toBe(3);
-    for (let i = 0; i < 10_000; i += 1) limiter.recordFailure(`spray-${i}`);
-    expect(limiter.size).toBe(3);
-    expect(limiter.retryAfter('spray-9999')).toBeGreaterThan(0);
+    limiter.record('locked');
+    let refused = 0;
+    for (let i = 0; i < 1_100; i += 1) {
+      if (!limiter.record(`spray-${i}`)) refused += 1;
+    }
+    expect(limiter.size).toBe(100);
+    expect(refused).toBe(1_001);
+    expect(limiter.retryAfter('locked')).toBe(1000);
+    expect(limiter.retryAfter('spray-1099')).toBe(1000);
+    expect(limiter.record('spray-1099')).toBe(false);
+  });
+
+  it('makes room only from keys whose window has ended', () => {
+    const time = clock();
+    const limiter = new AttemptLimiter({
+      maxAttempts: 1,
+      windowMs: 1000,
+      maxKeys: 2,
+      now: time.now,
+    });
+    limiter.record('old');
+    time.advance(600);
+    limiter.record('newer');
+    expect(limiter.retryAfter('third')).toBe(400);
+    time.advance(400);
+    expect(limiter.retryAfter('third')).toBe(0);
+    expect(limiter.record('third')).toBe(true);
+    expect(limiter.retryAfter('newer')).toBe(600);
+    expect(limiter.size).toBe(2);
   });
 });
 

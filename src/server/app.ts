@@ -16,7 +16,7 @@ import {
 } from '@/shared/limits';
 
 import { AccountService } from './accounts';
-import { FailureLimiter } from './rate-limit';
+import { AttemptLimiter } from './rate-limit';
 import { SessionStore } from './sessions';
 import { MemoryTaskRepository, type TaskRepository } from './tasks';
 
@@ -44,8 +44,8 @@ export function createServerApp(options: ServerAppOptions = {}): ServerApp {
     maxTotal: MAX_SESSIONS,
     now,
   });
-  const limiter = new FailureLimiter({
-    maxFailures: options.maxSignInFailures ?? MAX_SIGN_IN_FAILURES,
+  const limiter = new AttemptLimiter({
+    maxAttempts: options.maxSignInFailures ?? MAX_SIGN_IN_FAILURES,
     windowMs: SIGN_IN_WINDOW_MS,
     maxKeys: MAX_RATE_LIMIT_KEYS,
     now,
