@@ -1,9 +1,16 @@
-import { clientAddress, parseClientAddress } from '@/server/client-address';
+import { clientAddress, clientAddressSecret, parseClientAddress } from '@/server/client-address';
 
-function requestFrom(address?: string) {
-  return new Request('http://localhost/api/auth/sign-in', {
-    headers: address === undefined ? {} : { 'x-client-address': address },
-  });
+const SECRET = 'a-secret-the-client-never-sees-0123456789';
+
+function requestFrom(address?: string, proof: string | null = SECRET) {
+  const headers: Record<string, string> = {};
+  if (address !== undefined) headers['x-client-address'] = address;
+  if (proof !== null) headers['x-client-address-secret'] = proof;
+  return new Request('http://localhost/api/auth/sign-in', { headers });
+}
+
+function addressOf(address?: string) {
+  return clientAddress(requestFrom(address), SECRET);
 }
 
 describe('parseClientAddress', () => {
@@ -50,17 +57,39 @@ describe('parseClientAddress', () => {
 
 describe('clientAddress', () => {
   it('keys addresses of one IPv6 /64 network together', () => {
-    expect(clientAddress(requestFrom('2001:db8:1:2::a'))).toEqual(
-      clientAddress(requestFrom('2001:db8:1:2::b')),
-    );
-    expect(clientAddress(requestFrom('2001:db8:1:2::a'))?.client).not.toBe(
-      clientAddress(requestFrom('2001:db8:1:3::a'))?.client,
-    );
+    expect(addressOf('2001:db8:1:2::a')).toEqual(addressOf('2001:db8:1:2::b'));
+    expect(addressOf('2001:db8:1:2::a')?.client).not.toBe(addressOf('2001:db8:1:3::a')?.client);
   });
 
   it('answers null without a readable header', () => {
-    expect(clientAddress(requestFrom())).toBeNull();
-    expect(clientAddress(requestFrom('not an address'))).toBeNull();
-    expect(clientAddress(requestFrom(`${'1'.repeat(65)}`))).toBeNull();
+    expect(addressOf()).toBeNull();
+    expect(addressOf('not an address')).toBeNull();
+    expect(addressOf(`${'1'.repeat(65)}`)).toBeNull();
+  });
+
+  it('ignores an address header that comes without the right secret', () => {
+    expect(clientAddress(requestFrom('203.0.113.9', null), SECRET)).toBeNull();
+    expect(clientAddress(requestFrom('203.0.113.9', `${SECRET}x`), SECRET)).toBeNull();
+    expect(clientAddress(requestFrom('203.0.113.9', SECRET.replace('a', 'b')), SECRET)).toBeNull();
+    expect(clientAddress(requestFrom('203.0.113.9'), null)).toBeNull();
+  });
+
+  it('reads the secret from CLIENT_ADDRESS_SECRET and refuses a short one', () => {
+    const saved = process.env.CLIENT_ADDRESS_SECRET;
+    try {
+      delete process.env.CLIENT_ADDRESS_SECRET;
+      expect(clientAddressSecret()).toBeNull();
+      expect(clientAddress(requestFrom('203.0.113.9'))).toBeNull();
+      process.env.CLIENT_ADDRESS_SECRET = 'short';
+      expect(clientAddressSecret()).toBeNull();
+      process.env.CLIENT_ADDRESS_SECRET = SECRET;
+      expect(clientAddress(requestFrom('203.0.113.9'))).toEqual({
+        client: '203.0.113.9',
+        network: '203.0.113.9',
+      });
+    } finally {
+      if (saved === undefined) delete process.env.CLIENT_ADDRESS_SECRET;
+      else process.env.CLIENT_ADDRESS_SECRET = saved;
+    }
   });
 });

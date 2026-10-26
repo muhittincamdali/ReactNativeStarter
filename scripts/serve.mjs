@@ -4,9 +4,15 @@
 // adapter for (Express, Vercel, Netlify, Cloudflare Workers, Bun, EAS Hosting).
 //
 //   npm run build && npm run serve           PORT (default 3000) and HOST (default 127.0.0.1)
+//
+// Behind a reverse proxy, set TRUST_PROXY to the proxy's addresses, comma-separated
+// (TRUST_PROXY=127.0.0.1,::1): the client address is then read from X-Forwarded-For, but only on
+// connections from those addresses.
+import { randomBytes } from 'node:crypto';
 import { createReadStream, existsSync, statSync } from 'node:fs';
 import { createServer } from 'node:http';
 import { createRequire } from 'node:module';
+import { isIP } from 'node:net';
 import { extname, join, normalize, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -39,19 +45,62 @@ if (!Number.isInteger(PORT) || PORT < 1 || PORT > 65535) {
   process.exit(1);
 }
 
+// An address as one form: lower case, and an IPv4-mapped IPv6 address as its IPv4 address.
+function plainAddress(address) {
+  const lower = address.trim().toLowerCase();
+  const plain = lower.startsWith('::ffff:') && isIP(lower.slice(7)) === 4 ? lower.slice(7) : lower;
+  return isIP(plain) ? plain : null;
+}
+
+const TRUSTED_PROXIES = new Set();
+for (const entry of (process.env.TRUST_PROXY ?? '').split(',')) {
+  if (!entry.trim()) continue;
+  const address = plainAddress(entry);
+  if (!address) {
+    console.error(`TRUST_PROXY must list IP addresses, got "${entry.trim()}".`);
+    process.exit(1);
+  }
+  TRUSTED_PROXIES.add(address);
+}
+
+// The API's rate limits key on these headers (src/server/client-address.ts). The routes trust the
+// address only with this secret, which lives in this process and is never sent to a client.
+const CLIENT_ADDRESS_HEADER = 'x-client-address';
+const CLIENT_ADDRESS_SECRET_HEADER = 'x-client-address-secret';
+process.env.CLIENT_ADDRESS_SECRET = randomBytes(32).toString('base64url');
+
 const handleRoute = createRequestHandler({ build: join(ROOT, 'server') });
 
-// The API's rate limits key on this header (src/server/client-address.ts). expo-server builds the
-// route's Request from req.rawHeaders, so a value the client sent is removed there and the
-// socket's address is added. Behind a proxy, set it from the address the proxy reports instead.
-const CLIENT_ADDRESS_HEADER = 'x-client-address';
+// The socket's address, or, on a connection from a trusted proxy, the nearest address in
+// X-Forwarded-For that is not a trusted proxy. null when there is none or it is malformed: the
+// API then slows such requests down instead of limiting them per client.
+function clientAddressOf(req) {
+  const peer = plainAddress(req.socket.remoteAddress ?? '');
+  if (!peer || !TRUSTED_PROXIES.has(peer)) return peer;
+  const hops = [req.headers['x-forwarded-for'] ?? ''].flat().join(',').split(',').reverse();
+  for (const hop of hops) {
+    if (!hop.trim()) continue;
+    const address = plainAddress(hop);
+    if (!address) return null;
+    if (!TRUSTED_PROXIES.has(address)) return address;
+  }
+  return null;
+}
 
+// expo-server builds the route's Request from req.rawHeaders, so the values a client sent are
+// removed there and this server's own are added.
 function setClientAddress(req) {
   const raw = req.rawHeaders;
   for (let index = raw.length - 2; index >= 0; index -= 2) {
-    if (raw[index].toLowerCase() === CLIENT_ADDRESS_HEADER) raw.splice(index, 2);
+    const name = raw[index].toLowerCase();
+    if (name === CLIENT_ADDRESS_HEADER || name === CLIENT_ADDRESS_SECRET_HEADER) {
+      raw.splice(index, 2);
+    }
   }
-  if (req.socket.remoteAddress) raw.push(CLIENT_ADDRESS_HEADER, req.socket.remoteAddress);
+  const address = clientAddressOf(req);
+  if (!address) return;
+  raw.push(CLIENT_ADDRESS_HEADER, address);
+  raw.push(CLIENT_ADDRESS_SECRET_HEADER, process.env.CLIENT_ADDRESS_SECRET);
 }
 
 // A static file under dist/client for this URL path, or null. Paths that would leave the
@@ -92,4 +141,9 @@ const server = createServer((req, res) => {
 
 server.listen(PORT, HOST, () => {
   console.log(`Serving dist/ on http://${HOST}:${PORT}`);
+  if (TRUSTED_PROXIES.size > 0) {
+    console.log(
+      `Reading client addresses from X-Forwarded-For of ${[...TRUSTED_PROXIES].join(', ')}`,
+    );
+  }
 });

@@ -2,20 +2,28 @@
  * The address of the client that sent a request, as a key for the rate limits.
  *
  * A Fetch `Request` carries no socket address, so the server in front of the API routes has to
- * pass it on: `scripts/serve.mjs` replaces any {@link CLIENT_ADDRESS_HEADER} a client sent with
- * the socket's remote address. Behind a proxy or on another host, set the header from the address
- * that proxy reports and drop any value the client sent; a header a client can set is not a limit.
+ * pass it on. The routes read {@link CLIENT_ADDRESS_HEADER} only when the request also carries
+ * {@link CLIENT_ADDRESS_SECRET_HEADER} with the value of the `CLIENT_ADDRESS_SECRET` environment
+ * variable, which a client cannot know. `scripts/serve.mjs` sets that variable to a random value
+ * at start, removes both headers from what the client sent and adds them with the socket's
+ * address, or with the address a proxy listed in `TRUST_PROXY` reports.
  *
- * A request without a readable header has no address (`null`). That is the case in
- * `npx expo start`, which runs the routes without a way to pass the address. Such requests are
- * not limited per client; the limiter slows them down instead (`src/server/auth-limiter.ts`), so
- * they never lock each other out.
+ * Without the secret, as in `npx expo start`, a request has no address (`null`), whatever headers
+ * it sends. Such requests are not limited per client; the limiter slows them down instead
+ * (`src/server/auth-limiter.ts`), so they never lock each other out, and the server warns once
+ * when it starts (`src/server/app.ts`).
  *
  * @module
  */
 
 /** Header that carries the client's address, set by the server in front of the routes. */
 export const CLIENT_ADDRESS_HEADER = 'x-client-address';
+
+/** Header that proves {@link CLIENT_ADDRESS_HEADER} comes from the server in front. */
+export const CLIENT_ADDRESS_SECRET_HEADER = 'x-client-address-secret';
+
+// A shorter secret is treated as missing, so a placeholder value cannot switch the header on.
+const MIN_SECRET_LENGTH = 32;
 
 const IPV4 = /^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/;
 const IPV4_MAPPED = /^::ffff:(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})$/i;
@@ -82,8 +90,35 @@ export function parseClientAddress(raw: string): ClientAddress | null {
   };
 }
 
-/** The address of the request's client; `null` when it is not known. */
-export function clientAddress(request: Request): ClientAddress | null {
+/**
+ * The secret the server in front of the routes sends with the client address: the
+ * `CLIENT_ADDRESS_SECRET` environment variable, or `null` when it is missing or too short.
+ */
+export function clientAddressSecret(): string | null {
+  const secret = process.env.CLIENT_ADDRESS_SECRET;
+  return secret !== undefined && secret.length >= MIN_SECRET_LENGTH ? secret : null;
+}
+
+// Compares in time that depends only on the length, so the secret cannot be found byte by byte.
+function sameSecret(given: string, secret: string): boolean {
+  if (given.length !== secret.length) return false;
+  let difference = 0;
+  for (let index = 0; index < secret.length; index += 1) {
+    difference |= given.charCodeAt(index) ^ secret.charCodeAt(index);
+  }
+  return difference === 0;
+}
+
+/**
+ * The address of the request's client; `null` when it is not known or the address header does
+ * not come with the right secret.
+ */
+export function clientAddress(
+  request: Request,
+  secret: string | null = clientAddressSecret(),
+): ClientAddress | null {
+  const proof = request.headers.get(CLIENT_ADDRESS_SECRET_HEADER);
+  if (secret === null || proof === null || !sameSecret(proof, secret)) return null;
   const header = request.headers.get(CLIENT_ADDRESS_HEADER);
   if (!header || header.length > MAX_HEADER_LENGTH) return null;
   return parseClientAddress(header);

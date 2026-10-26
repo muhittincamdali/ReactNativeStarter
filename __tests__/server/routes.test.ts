@@ -10,6 +10,8 @@ import { createServerApp, setServerApp } from '@/server/app';
 import { sessionSchema, taskPageSchema, taskSchema } from '@/shared/schemas';
 
 const BASE = 'http://localhost:8081';
+// What scripts/serve.mjs would set; the routes trust X-Client-Address only with it.
+const SECRET = 'a-secret-the-client-never-sees-0123456789';
 
 function request(
   path: string,
@@ -18,7 +20,10 @@ function request(
   const headers: Record<string, string> = {};
   if (init.body !== undefined) headers['content-type'] = 'application/json';
   if (init.token) headers.authorization = `Bearer ${init.token}`;
-  if (init.client) headers['x-client-address'] = init.client;
+  if (init.client) {
+    headers['x-client-address'] = init.client;
+    headers['x-client-address-secret'] = SECRET;
+  }
   return new Request(`${BASE}${path}`, {
     method: init.method ?? 'GET',
     headers,
@@ -41,11 +46,18 @@ async function register(email = 'ada@example.com') {
   return sessionSchema.parse(await response.json());
 }
 
+beforeAll(() => {
+  process.env.CLIENT_ADDRESS_SECRET = SECRET;
+});
+
 beforeEach(() => {
   setServerApp(createServerApp({ iterations: 1_000, maxSignInFailures: 3, maxTasksPerUser: 3 }));
 });
 
-afterAll(() => setServerApp(undefined));
+afterAll(() => {
+  setServerApp(undefined);
+  delete process.env.CLIENT_ADDRESS_SECRET;
+});
 
 describe('health', () => {
   it('answers ok', async () => {
@@ -391,6 +403,29 @@ describe('auth routes', () => {
       }),
     );
     expect(response.status).toBe(201);
+  });
+
+  it('treats an X-Client-Address sent without the secret as no address', async () => {
+    setServerApp(createServerApp({ iterations: 1_000, maxSignUpsPerClient: 1 }));
+    const attempt = (email: string, spoofed: string) =>
+      signUp(
+        new Request(`${BASE}/api/auth/sign-up`, {
+          method: 'POST',
+          headers: { 'content-type': 'application/json', 'x-client-address': spoofed },
+          body: JSON.stringify({ name: 'Ada', email, password: 'correct horse' }),
+        }),
+      );
+    // With the header trusted, the second sign-up from one address would get 429.
+    expect((await attempt('a@example.com', '203.0.113.9')).status).toBe(201);
+    expect((await attempt('b@example.com', '203.0.113.9')).status).toBe(201);
+    const real = await signUp(
+      request('/api/auth/sign-up', {
+        method: 'POST',
+        body: { name: 'Ada', email: 'c@example.com', password: 'correct horse' },
+        client: '203.0.113.9',
+      }),
+    );
+    expect(real.status).toBe(201);
   });
 
   it('slows down requests without a client address instead of locking them out', async () => {
