@@ -1,0 +1,11 @@
+dist
+docs/api
+.expo
+ios
+android
+coverage
+package-lock.json
+_work
+# Prose and repository settings are formatted by hand.
+*.md
+.github
