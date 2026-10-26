@@ -117,6 +117,55 @@ describe('createApiClient', () => {
     expect((await rejection(api.request('/api/x', { schema }))).kind).toBe('invalid-response');
   });
 
+  it('stops reading a body without Content-Length once it passes the limit', async () => {
+    let pulls = 0;
+    let cancelled = false;
+    const endless = new ReadableStream<Uint8Array>({
+      pull(controller) {
+        pulls += 1;
+        controller.enqueue(new Uint8Array(400).fill(0x20));
+      },
+      cancel() {
+        cancelled = true;
+      },
+    });
+    const api = client({
+      fetch: jest.fn(async () => new Response(endless)),
+      maxResponseBytes: 1000,
+    });
+    expect((await rejection(api.request('/api/x', { schema }))).kind).toBe('invalid-response');
+    // Three chunks pass the limit; the stream may have queued a couple more ahead of the reader.
+    expect(pulls).toBeLessThanOrEqual(6);
+    expect(cancelled).toBe(true);
+  });
+
+  it('keeps the time limit while the body is read', async () => {
+    const stalled = new ReadableStream<Uint8Array>({
+      start(controller) {
+        controller.enqueue(new TextEncoder().encode('{"value":'));
+      },
+    });
+    const api = client({ fetch: jest.fn(async () => new Response(stalled)), timeoutMs: 20 });
+    expect((await rejection(api.request('/api/x', { schema }))).kind).toBe('timeout');
+  });
+
+  it('reads a streamed answer split inside a multi-byte character', async () => {
+    const bytes = new TextEncoder().encode('{"value":1,"name":"Çağrı"}');
+    const split = new ReadableStream<Uint8Array>({
+      start(controller) {
+        controller.enqueue(bytes.slice(0, 21));
+        controller.enqueue(bytes.slice(21));
+        controller.close();
+      },
+    });
+    const named = schema.extend({ name: z.string() });
+    const api = client({ fetch: jest.fn(async () => new Response(split)) });
+    await expect(api.request('/api/x', { schema: named })).resolves.toEqual({
+      value: 1,
+      name: 'Çağrı',
+    });
+  });
+
   it('reports a failed connection as network', async () => {
     const fetch = jest.fn(async () => {
       throw new TypeError('Network request failed');

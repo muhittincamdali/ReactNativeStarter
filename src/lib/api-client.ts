@@ -1,6 +1,7 @@
 /**
- * A typed `fetch` wrapper: a time limit, a response size limit, the bearer token, and every
- * answer parsed with a zod schema from `src/shared/schemas`.
+ * A typed `fetch` wrapper: a time limit for the whole exchange, a response size limit enforced
+ * while the body streams in, the bearer token, and every answer parsed with a zod schema from
+ * `src/shared/schemas`.
  *
  * @module
  */
@@ -88,13 +89,63 @@ function parseError(status: number, text: string): ApiError {
   return new ApiError('http', `The server answered ${status}.`, status);
 }
 
+// Settles like `promise`, or rejects as soon as `signal` aborts, for fetch implementations whose
+// body reads do not stop on abort.
+function untilAborted<T>(promise: Promise<T>, signal: AbortSignal): Promise<T> {
+  if (signal.aborted) return Promise.reject(new DOMException('Aborted', 'AbortError'));
+  return new Promise<T>((resolve, reject) => {
+    const onAbort = () => reject(new DOMException('Aborted', 'AbortError'));
+    signal.addEventListener('abort', onAbort, { once: true });
+    promise.then(resolve, reject).finally(() => signal.removeEventListener('abort', onAbort));
+  });
+}
+
 /** Creates an API client. */
 export function createApiClient(options: ApiClientOptions): ApiClient {
   const fetchImpl = options.fetch ?? fetch;
   const timeoutMs = options.timeoutMs ?? REQUEST_TIMEOUT_MS;
   const maxBytes = options.maxResponseBytes ?? MAX_RESPONSE_BYTES;
 
-  async function send(path: string, init: RequestInit, signal?: AbortSignal): Promise<Response> {
+  function tooLarge(status: number): ApiError {
+    return new ApiError('invalid-response', 'The answer is too large.', status);
+  }
+
+  // Reads the body as a stream and stops at maxBytes. React Native's fetch has no body stream and
+  // resolves only once the whole body has arrived, so there only its length can be checked.
+  async function readBody(response: Response, signal: AbortSignal): Promise<string> {
+    const declared = Number(response.headers.get('content-length') ?? '0');
+    if (Number.isFinite(declared) && declared > maxBytes) throw tooLarge(response.status);
+    const reader = response.body?.getReader();
+    if (!reader || typeof TextDecoder === 'undefined') {
+      const text = await untilAborted(response.text(), signal);
+      // UTF-16 length is at most the UTF-8 byte length, so this never rejects a body within the limit.
+      if (text.length > maxBytes) throw tooLarge(response.status);
+      return text;
+    }
+    const decoder = new TextDecoder();
+    let text = '';
+    let total = 0;
+    try {
+      for (;;) {
+        const { done, value } = await untilAborted(reader.read(), signal);
+        if (done) return text + decoder.decode();
+        total += value.byteLength;
+        if (total > maxBytes) throw tooLarge(response.status);
+        text += decoder.decode(value, { stream: true });
+      }
+    } catch (error) {
+      reader.cancel().catch(() => undefined);
+      throw error;
+    }
+  }
+
+  // The time limit covers the whole exchange, from sending the request to the last byte of the
+  // answer, so a server that sends its body slowly cannot hold the request open.
+  async function exchange(
+    path: string,
+    init: RequestInit,
+    signal?: AbortSignal,
+  ): Promise<{ response: Response; text: string }> {
     if (options.baseUrl === null) {
       throw new ApiError('config', 'Set EXPO_PUBLIC_API_URL to the address of the API.');
     }
@@ -106,34 +157,31 @@ export function createApiClient(options: ApiClientOptions): ApiClient {
     }, timeoutMs);
     const forwardAbort = () => controller.abort();
     signal?.addEventListener('abort', forwardAbort);
+    const failure = (error: unknown, message: string): unknown => {
+      if (error instanceof ApiError) return error;
+      if (timedOut) return new ApiError('timeout', 'The server did not answer in time.');
+      if (signal?.aborted) return error;
+      return new ApiError('network', message);
+    };
     try {
-      return await fetchImpl(`${options.baseUrl}${path}`, { ...init, signal: controller.signal });
-    } catch (error) {
-      if (timedOut) throw new ApiError('timeout', 'The server did not answer in time.');
-      if (signal?.aborted) throw error;
-      throw new ApiError('network', 'Could not reach the server.');
+      let response: Response;
+      try {
+        response = await fetchImpl(`${options.baseUrl}${path}`, {
+          ...init,
+          signal: controller.signal,
+        });
+      } catch (error) {
+        throw failure(error, 'Could not reach the server.');
+      }
+      try {
+        return { response, text: await readBody(response, controller.signal) };
+      } catch (error) {
+        throw failure(error, 'The connection broke while reading the answer.');
+      }
     } finally {
       clearTimeout(timer);
       signal?.removeEventListener('abort', forwardAbort);
     }
-  }
-
-  async function readText(response: Response): Promise<string> {
-    const declared = Number(response.headers.get('content-length') ?? '0');
-    if (Number.isFinite(declared) && declared > maxBytes) {
-      throw new ApiError('invalid-response', 'The answer is too large.', response.status);
-    }
-    let text: string;
-    try {
-      text = await response.text();
-    } catch {
-      throw new ApiError('network', 'The connection broke while reading the answer.');
-    }
-    // UTF-16 length is at most the UTF-8 byte length, so this never rejects a body within the limit.
-    if (text.length > maxBytes) {
-      throw new ApiError('invalid-response', 'The answer is too large.', response.status);
-    }
-    return text;
   }
 
   return {
@@ -142,12 +190,11 @@ export function createApiClient(options: ApiClientOptions): ApiClient {
       const headers: Record<string, string> = { Accept: 'application/json' };
       if (body !== undefined) headers['Content-Type'] = 'application/json';
       if (token) headers.Authorization = `Bearer ${token}`;
-      const response = await send(
+      const { response, text } = await exchange(
         path,
         { method, headers, body: body === undefined ? undefined : JSON.stringify(body) },
         signal,
       );
-      const text = await readText(response);
       if (!response.ok) {
         if (response.status === 401 && token) options.onUnauthorized?.();
         throw parseError(response.status, text);
