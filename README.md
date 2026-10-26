@@ -35,14 +35,15 @@ change, rather than a folder of empty screens.
 - **One schema for both sides** — request and response shapes are zod schemas in `src/shared`; the
   API validates every body with them and the app parses every answer with them.
 - **Accounts done carefully** — PBKDF2 password hashes (600,000 iterations), random session tokens
-  stored only as SHA-256 hashes, tokens in the iOS Keychain and Android Keystore, five failed
-  sign-ins per address per 15 minutes, and the same answer for a wrong address and a wrong password.
+  stored only as SHA-256 hashes, tokens in the iOS Keychain and Android Keystore, sign-in and
+  sign-up limits per client address that slow an attacked account down instead of locking its
+  owner out, and the same answer for a wrong address and a wrong password.
 - **Bounded by design** — 16 KiB request bodies read as a stream, 1 MiB answers, 500 tasks per
   account, pages of at most 100, strict integer query parameters and capped session and limiter
   tables: no request can make the server hold more or loop longer.
 - **Ready for people** — light and dark themes, English and Turkish with typed keys, offline-tolerant
   sign-in, optimistic task updates, accessibility roles and labels, and 48-point touch targets.
-- **Tested from the schema to the screen** — 219 Jest tests, including one that renders the
+- **Tested from the schema to the screen** — 250 Jest tests, including one that renders the
   real screens against the real API handlers in the same process, plus Maestro flows that run the
   built app on an iOS simulator.
 
@@ -241,6 +242,15 @@ npm run lint && npm run typecheck && npm test && npm run build
 npm run ios          # development build on a simulator, then in another terminal:
 npm run e2e:ios      # Maestro flows (sign-up, tasks, settings, form validation)
 ```
+
+## Before production
+
+The API keeps accounts, sessions, tasks and rate-limit counts in the memory of one process, sized
+for a demo: 1,000 accounts and 100,000 tasks. A restart empties it, and several server instances do
+not share it. Before real users arrive, move the stores to a database and the rate-limit counts to
+a store all instances share, pass the client address on from your proxy, and add account deletion
+and password reset. The
+[Security guide](Documentation/Security.md#demo-server-or-production) lists each step.
 
 ## Roadmap
 
