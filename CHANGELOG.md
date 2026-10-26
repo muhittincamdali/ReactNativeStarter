@@ -22,19 +22,26 @@ upgrade path from 1.x. Start from a new clone.
   `application/json` (`415`), decodes UTF-8 strictly (`400`), validates with strict zod schemas
   (`422` with field keys) and answers unexpected errors with a `500` that carries no details.
 - Accounts with PBKDF2-HMAC-SHA256 password hashes (600,000 iterations), 32-byte session tokens
-  stored only as SHA-256 hashes, 30-day expiry, at most 10 sessions per account, and a limit of
-  5 failed sign-ins per address per 15 minutes (`429` with `Retry-After`) that counts parallel
-  attempts.
-- A task list with cursor paging, at most 500 tasks per account, and a `TaskRepository` interface
-  with an in-memory implementation.
+  stored only as SHA-256 hashes, 30-day expiry, and at most 10 sessions per account, where a new
+  one replaces only that account's oldest; a full session table answers `503` instead of dropping
+  another account's session.
+- Sign-in limits over 15 minutes that count parallel attempts: 30 attempts per client address and
+  5 failures per client and e-mail address (`429` with `Retry-After`), and for one e-mail address
+  from all clients a delay from 250 ms up to 5 s after 5 failures, never a lock. Sign-up allows 10
+  attempts per client address an hour. The client address is the `X-Client-Address` header, which
+  `npm run serve` sets from the socket. Full rate-limit tables refuse new keys instead of
+  forgetting live ones.
+- A task list with cursor paging, at most 500 tasks per account and 100,000 in all, and a
+  `TaskRepository` interface with an in-memory implementation.
 - Shared zod schemas and named limits in `src/shared`, and `parseBoundedInteger()` for query
   parameters.
 - The app: sign-in and sign-up with the API's validation messages under each field, a task list
   with optimistic updates, and Settings for appearance (system, light, dark), language (system,
   English, Turkish) and signing out. The session is kept in the Keychain or Keystore and the app
   signs out only on a `401`.
-- A typed API client with a time limit, a response size limit and schema-checked answers.
-- 219 Jest tests, among them a test that renders the real screens against the real API handlers
+- A typed API client with one time limit for the request and the body, a response size limit
+  that stops a body stream at 1 MiB, and schema-checked answers.
+- 250 Jest tests, among them a test that renders the real screens against the real API handlers
   in one process, and Maestro flows for a simulator or a device.
 - `npm run serve` for the production build (`scripts/serve.mjs`).
 - Examples: a task statistics route with its client call and card, and a SQLite `TaskRepository`
