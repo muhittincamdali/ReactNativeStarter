@@ -16,10 +16,7 @@ module.exports = {
       ...expoPreset,
       displayName: 'app',
       clearMocks: true,
-      testMatch: [
-        '<rootDir>/__tests__/app/**/*.test.ts?(x)',
-        '<rootDir>/Examples/**/*.test.ts?(x)',
-      ],
+      testMatch: ['<rootDir>/__tests__/app/**/*.test.ts?(x)', '<rootDir>/Examples/**/*.test.tsx'],
       moduleNameMapper: { ...expoPreset.moduleNameMapper, ...aliases },
       setupFilesAfterEnv: ['<rootDir>/__tests__/app/setup.tsx'],
     },
@@ -30,6 +27,7 @@ module.exports = {
       testMatch: [
         '<rootDir>/__tests__/server/**/*.test.ts',
         '<rootDir>/__tests__/shared/**/*.test.ts',
+        '<rootDir>/Examples/**/*.node.test.ts',
       ],
       moduleNameMapper: aliases,
     },
