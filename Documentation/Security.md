@@ -46,6 +46,9 @@ names the file to read and the test that checks it.
 - Five failed sign-ins for one address lock it for 15 minutes (`429` with `Retry-After`). Each
   attempt is counted before the password is checked, so parallel requests cannot slip past.
 - Errors carry a stable code and no internal details; an unexpected error is a plain `500`.
+- The app reads at most 1 MiB of an answer. A declared `Content-Length` above that is refused before
+  the body is read; React Native's `fetch` cannot stop a body without one halfway, so its length is
+  checked after reading (`src/lib/api-client.ts`).
 
 ## Logging
 
