@@ -11,10 +11,14 @@ import { sessionSchema, taskPageSchema, taskSchema } from '@/shared/schemas';
 
 const BASE = 'http://localhost:8081';
 
-function request(path: string, init: { method?: string; body?: unknown; token?: string } = {}) {
+function request(
+  path: string,
+  init: { method?: string; body?: unknown; token?: string; client?: string } = {},
+) {
   const headers: Record<string, string> = {};
   if (init.body !== undefined) headers['content-type'] = 'application/json';
   if (init.token) headers.authorization = `Bearer ${init.token}`;
+  if (init.client) headers['x-client-address'] = init.client;
   return new Request(`${BASE}${path}`, {
     method: init.method ?? 'GET',
     headers,
@@ -121,7 +125,7 @@ describe('auth routes', () => {
     expect(await wrongPassword.json()).toEqual(await unknown.json());
   });
 
-  it('locks an address after 3 failures with 429 and Retry-After, even for the right password', async () => {
+  it('locks an address for one client after 3 failures with 429 and Retry-After', async () => {
     await register();
     const attempt = (password: string) =>
       signIn(
@@ -134,6 +138,64 @@ describe('auth routes', () => {
     const locked = await attempt('correct horse');
     expect(locked.status).toBe(429);
     expect(Number(locked.headers.get('retry-after'))).toBeGreaterThan(0);
+  });
+
+  it('does not let failures from another client lock the owner out', async () => {
+    await register();
+    const attempt = (password: string, client: string) =>
+      signIn(
+        request('/api/auth/sign-in', {
+          method: 'POST',
+          body: { email: 'ada@example.com', password },
+          client,
+        }),
+      );
+    for (let i = 0; i < 3; i += 1) expect((await attempt('wrong', '203.0.113.9')).status).toBe(401);
+    expect((await attempt('wrong', '203.0.113.9')).status).toBe(429);
+    expect((await attempt('correct horse', '198.51.100.7')).status).toBe(200);
+  });
+
+  it('limits one client trying many addresses, whatever the addresses', async () => {
+    setServerApp(createServerApp({ iterations: 1_000, maxSignInAttemptsPerClient: 5 }));
+    await register();
+    const attempt = (email: string, password: string, client = '203.0.113.9') =>
+      signIn(request('/api/auth/sign-in', { method: 'POST', body: { email, password }, client }));
+    for (let i = 0; i < 5; i += 1) {
+      expect((await attempt(`user-${i}@example.com`, 'wrong')).status).toBe(401);
+    }
+    const limited = await attempt('ada@example.com', 'correct horse');
+    expect(limited.status).toBe(429);
+    expect(Number(limited.headers.get('retry-after'))).toBeGreaterThan(0);
+    expect((await attempt('ada@example.com', 'correct horse', '198.51.100.7')).status).toBe(200);
+  });
+
+  it('slows down an address attacked from many clients instead of locking it', async () => {
+    const delays: number[] = [];
+    setServerApp(
+      createServerApp({
+        iterations: 1_000,
+        sleep: async (ms) => {
+          delays.push(ms);
+        },
+      }),
+    );
+    await register();
+    const attempt = (password: string, client: string) =>
+      signIn(
+        request('/api/auth/sign-in', {
+          method: 'POST',
+          body: { email: 'ada@example.com', password },
+          client,
+        }),
+      );
+    for (let i = 0; i < 12; i += 1) {
+      expect((await attempt('wrong', `203.0.113.${i + 1}`)).status).toBe(401);
+    }
+    expect(delays).toEqual([250, 500, 1000, 2000, 4000, 5000, 5000]);
+    expect((await attempt('correct horse', '198.51.100.7')).status).toBe(200);
+    expect(delays.at(-1)).toBe(5000);
+    expect((await attempt('wrong', '198.51.100.7')).status).toBe(401);
+    expect(delays).toHaveLength(8);
   });
 
   it('counts parallel attempts, so they cannot all pass the limit at once', async () => {

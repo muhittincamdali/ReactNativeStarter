@@ -8,6 +8,7 @@ import {
   MAX_RATE_LIMIT_KEYS,
   MAX_SESSIONS,
   MAX_SESSIONS_PER_USER,
+  MAX_SIGN_IN_ATTEMPTS_PER_CLIENT,
   MAX_SIGN_IN_FAILURES,
   MAX_TASKS_PER_USER,
   MAX_USERS,
@@ -33,6 +34,9 @@ export interface ServerAppOptions {
   maxUsers?: number;
   maxTasksPerUser?: number;
   maxSignInFailures?: number;
+  maxSignInAttemptsPerClient?: number;
+  /** Replaces the wait before a slowed-down sign-in. */
+  sleep?: (ms: number) => Promise<void>;
 }
 
 /** Builds a new server with empty stores. */
@@ -44,18 +48,26 @@ export function createServerApp(options: ServerAppOptions = {}): ServerApp {
     maxTotal: MAX_SESSIONS,
     now,
   });
-  const limiter = new AttemptLimiter({
-    maxAttempts: options.maxSignInFailures ?? MAX_SIGN_IN_FAILURES,
-    windowMs: SIGN_IN_WINDOW_MS,
-    maxKeys: MAX_RATE_LIMIT_KEYS,
-    now,
-  });
+  const limiter = (maxAttempts: number) =>
+    new AttemptLimiter({
+      maxAttempts,
+      windowMs: SIGN_IN_WINDOW_MS,
+      maxKeys: MAX_RATE_LIMIT_KEYS,
+      now,
+    });
+  const signInLimits = {
+    clients: limiter(options.maxSignInAttemptsPerClient ?? MAX_SIGN_IN_ATTEMPTS_PER_CLIENT),
+    pairs: limiter(options.maxSignInFailures ?? MAX_SIGN_IN_FAILURES),
+    // Counts only, never blocks: the count sets the delay of the next attempt.
+    accounts: limiter(Number.POSITIVE_INFINITY),
+  };
   return {
     accounts: new AccountService({
       sessions,
-      limiter,
+      signInLimits,
       maxUsers: options.maxUsers ?? MAX_USERS,
       ...(options.iterations === undefined ? {} : { iterations: options.iterations }),
+      ...(options.sleep === undefined ? {} : { sleep: options.sleep }),
     }),
     tasks: new MemoryTaskRepository({
       maxPerUser: options.maxTasksPerUser ?? MAX_TASKS_PER_USER,

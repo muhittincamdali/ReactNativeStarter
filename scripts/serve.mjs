@@ -41,6 +41,19 @@ if (!Number.isInteger(PORT) || PORT < 1 || PORT > 65535) {
 
 const handleRoute = createRequestHandler({ build: join(ROOT, 'server') });
 
+// The API's rate limits key on this header (src/server/client-address.ts). expo-server builds the
+// route's Request from req.rawHeaders, so a value the client sent is removed there and the
+// socket's address is added. Behind a proxy, set it from the address the proxy reports instead.
+const CLIENT_ADDRESS_HEADER = 'x-client-address';
+
+function setClientAddress(req) {
+  const raw = req.rawHeaders;
+  for (let index = raw.length - 2; index >= 0; index -= 2) {
+    if (raw[index].toLowerCase() === CLIENT_ADDRESS_HEADER) raw.splice(index, 2);
+  }
+  if (req.socket.remoteAddress) raw.push(CLIENT_ADDRESS_HEADER, req.socket.remoteAddress);
+}
+
 // A static file under dist/client for this URL path, or null. Paths that would leave the
 // folder ("/../", encoded or not) are refused.
 function staticFile(urlPath) {
@@ -70,6 +83,7 @@ const server = createServer((req, res) => {
     else createReadStream(file).pipe(res);
     return;
   }
+  setClientAddress(req);
   handleRoute(req, res, (error) => {
     res.statusCode = error ? 500 : 404;
     res.end();

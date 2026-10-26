@@ -41,12 +41,29 @@ export const MAX_SESSIONS = 20_000;
 /** How long a session token stays valid, in milliseconds (30 days). */
 export const SESSION_TTL_MS = 30 * 24 * 60 * 60 * 1000;
 
-/** Failed sign-ins allowed per e-mail address within {@link SIGN_IN_WINDOW_MS}. */
-export const MAX_SIGN_IN_FAILURES = 5;
+/** Window of every sign-in limit, in milliseconds. */
 export const SIGN_IN_WINDOW_MS = 15 * 60 * 1000;
 
-/** E-mail addresses the sign-in limiter tracks at once. */
-export const MAX_RATE_LIMIT_KEYS = 10_000;
+/** Failed sign-ins allowed for one e-mail address from one client address in a window. */
+export const MAX_SIGN_IN_FAILURES = 5;
+
+/** Sign-in attempts allowed from one client address in a window, for any e-mail addresses. */
+export const MAX_SIGN_IN_ATTEMPTS_PER_CLIENT = 30;
+
+/**
+ * Failed sign-ins for one e-mail address, from all clients together, before each further attempt
+ * waits: {@link SIGN_IN_DELAY_BASE_MS}, doubling up to {@link MAX_SIGN_IN_DELAY_MS}.
+ */
+export const SIGN_IN_FAILURES_BEFORE_DELAY = 5;
+export const SIGN_IN_DELAY_BASE_MS = 250;
+export const MAX_SIGN_IN_DELAY_MS = 5_000;
+
+/**
+ * Keys each rate limiter tracks at once (client addresses, pairs of client and e-mail address,
+ * e-mail addresses). A limiter whose table is full of keys still counting refuses new keys until
+ * the oldest window ends.
+ */
+export const MAX_RATE_LIMIT_KEYS = 50_000;
 
 /** Time the client waits for an API answer, in milliseconds. */
 export const REQUEST_TIMEOUT_MS = 15_000;
