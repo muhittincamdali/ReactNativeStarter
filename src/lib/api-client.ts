@@ -139,6 +139,15 @@ export function createApiClient(options: ApiClientOptions): ApiClient {
     }
   }
 
+  // What fetch rejects with for an aborted signal: its reason, or an AbortError where the
+  // platform's AbortSignal has no reason.
+  function abortReason(signal: AbortSignal): unknown {
+    if (signal.reason !== undefined) return signal.reason;
+    const error = new Error('The request was aborted.');
+    error.name = 'AbortError';
+    return error;
+  }
+
   // The time limit covers the whole exchange, from sending the request to the last byte of the
   // answer, so a server that sends its body slowly cannot hold the request open.
   async function exchange(
@@ -149,6 +158,8 @@ export function createApiClient(options: ApiClientOptions): ApiClient {
     if (options.baseUrl === null) {
       throw new ApiError('config', 'Set EXPO_PUBLIC_API_URL to the address of the API.');
     }
+    // An aborted signal never fires 'abort' again, so the request would start and run to the end.
+    if (signal?.aborted) throw abortReason(signal);
     const controller = new AbortController();
     let timedOut = false;
     const timer = setTimeout(() => {

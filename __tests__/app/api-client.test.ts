@@ -205,6 +205,15 @@ describe('createApiClient', () => {
     await expect(pending).rejects.toMatchObject({ name: 'AbortError' });
   });
 
+  it('does not start the request when the caller aborted before it', async () => {
+    const controller = new AbortController();
+    controller.abort();
+    const fetch = jest.fn();
+    const pending = client({ fetch }).request('/api/x', { signal: controller.signal });
+    await expect(pending).rejects.toMatchObject({ name: 'AbortError' });
+    expect(fetch).not.toHaveBeenCalled();
+  });
+
   it('fails with config, without a request, when there is no base URL', async () => {
     const fetch = jest.fn();
     const error = await rejection(client({ baseUrl: null, fetch }).request('/api/x'));
