@@ -1,0 +1,38 @@
+{
+  "name": "React Native Starter",
+  "repository": "muhittincamdali/ReactNativeStarter",
+  "tagline": {
+    "en": "An Expo app with its own API: accounts, a task list, light and dark themes, two languages and tests."
+  },
+  "tags": {
+    "en": [
+      "Expo SDK 58",
+      "React Native",
+      "TypeScript",
+      "Own API"
+    ]
+  },
+  "motif": "phone",
+  "buttons": [
+    "start",
+    "docs",
+    "examples"
+  ],
+  "links": {
+    "docs": "https://muhittincamdali.github.io/ReactNativeStarter/",
+    "examples": "Examples/"
+  },
+  "languages": [
+    "en",
+    "tr",
+    "zh-CN",
+    "ja",
+    "ko",
+    "es",
+    "de",
+    "fr",
+    "pt-BR",
+    "ru"
+  ],
+  "socialTheme": "dark"
+}
