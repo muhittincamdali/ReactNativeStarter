@@ -1,4 +1,4 @@
-<!-- i18n-source: README.md@7eb6261d552eca9666620ecbb98714f72b1ea22f status=reviewed -->
+<!-- i18n-source: README.md@467b99b41b2762a14345517b546a0b0320caf6ff status=reviewed -->
 <!-- brand:start -->
 
 <p align="center"><picture><source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/muhittincamdali/ReactNativeStarter/main/.github/brand/banner-dark.svg"><source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/muhittincamdali/ReactNativeStarter/main/.github/brand/banner-light.svg"><img src="https://raw.githubusercontent.com/muhittincamdali/ReactNativeStarter/main/.github/brand/banner-light.svg" alt="React Native Starter: An Expo app with its own API: accounts, a task list, light and dark themes, two languages and tests."></picture></p>
@@ -30,10 +30,10 @@ Une application Expo pour démarrer : elle fonctionne sur iOS, Android et le we
 
 - **Un backend dans le même projet** — les API routes de `src/app/api` gèrent l’inscription, la connexion et la déconnexion, ainsi que la création, la liste, la mise à jour et la suppression des tâches. Le serveur de développement les exécute à côté de l’application, et `npm run build` les exporte pour Node.js, EAS Hosting, Vercel, Netlify ou Cloudflare.
 - **Un seul schéma pour les deux côtés** — les formes des requêtes et des réponses sont des schémas zod dans `src/shared` ; l’API valide chaque corps avec eux et l’application analyse chaque réponse avec eux.
-- **Des comptes soignés** — hachages de mot de passe PBKDF2 (600 000 itérations), jetons de session aléatoires stockés uniquement sous forme de hachages SHA-256, jetons conservés dans le Keychain d’iOS et le Keystore d’Android, cinq connexions échouées par adresse toutes les 15 minutes, et la même réponse pour une adresse incorrecte et pour un mot de passe incorrect.
+- **Des comptes soignés** — hachages de mot de passe PBKDF2 (600 000 itérations), jetons de session aléatoires stockés uniquement sous forme de hachages SHA-256, jetons conservés dans le Keychain d’iOS et le Keystore d’Android, des limites de connexion et d’inscription par adresse de client qui ralentissent un compte attaqué au lieu d’en bloquer le propriétaire, et la même réponse pour une adresse incorrecte et pour un mot de passe incorrect.
 - **Bornée dès la conception** — corps de requête de 16 KiB lus en flux, réponses de 1 MiB, 500 tâches par compte, pages de 100 éléments au plus, paramètres de requête entiers stricts, tables de sessions et de limitation plafonnées : aucune requête ne peut obliger le serveur à retenir plus de mémoire ni à boucler plus longtemps.
 - **Prête pour les utilisateurs** — thèmes clair et sombre, anglais et turc avec des clés typées, connexion tolérante au mode hors ligne, mises à jour optimistes des tâches, rôles et libellés d’accessibilité, et zones tactiles de 48 points.
-- **Testée du schéma jusqu’à l’écran** — 219 tests Jest, dont un qui affiche les vrais écrans face aux vrais gestionnaires de l’API dans le même processus, ainsi que des flux Maestro qui exécutent l’application compilée sur un simulateur iOS.
+- **Testée du schéma jusqu’à l’écran** — 250 tests Jest, dont un qui affiche les vrais écrans face aux vrais gestionnaires de l’API dans le même processus, ainsi que des flux Maestro qui exécutent l’application compilée sur un simulateur iOS.
 
 ## Démarrage rapide
 
@@ -196,6 +196,10 @@ npm run lint && npm run typecheck && npm test && npm run build
 npm run ios          # development build on a simulator, then in another terminal:
 npm run e2e:ios      # Maestro flows (sign-up, tasks, settings, form validation)
 ```
+
+## Avant la production
+
+L’API garde les comptes, les sessions, les tâches et les compteurs de limitation dans la mémoire d’un seul processus, dimensionnée pour une démo : 1 000 comptes et 100 000 tâches. Un redémarrage la vide, et plusieurs instances du serveur ne la partagent pas. Avant l’arrivée de vrais utilisateurs, placez les données dans une base de données et les compteurs de limitation dans un stockage partagé par toutes les instances, transmettez l’adresse du client depuis votre proxy, et ajoutez la suppression de compte et la réinitialisation du mot de passe. Le [guide de sécurité](Documentation/Security.md#demo-server-or-production) détaille chaque étape.
 
 ## Feuille de route
 

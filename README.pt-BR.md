@@ -1,4 +1,4 @@
-<!-- i18n-source: README.md@7eb6261d552eca9666620ecbb98714f72b1ea22f status=reviewed -->
+<!-- i18n-source: README.md@467b99b41b2762a14345517b546a0b0320caf6ff status=reviewed -->
 <!-- brand:start -->
 
 <p align="center"><picture><source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/muhittincamdali/ReactNativeStarter/main/.github/brand/banner-dark.svg"><source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/muhittincamdali/ReactNativeStarter/main/.github/brand/banner-light.svg"><img src="https://raw.githubusercontent.com/muhittincamdali/ReactNativeStarter/main/.github/brand/banner-light.svg" alt="React Native Starter: An Expo app with its own API: accounts, a task list, light and dark themes, two languages and tests."></picture></p>
@@ -30,10 +30,10 @@ Um app Expo para você começar: roda em iOS, Android e na web e traz o próprio
 
 - **Um backend no mesmo projeto** — as API routes em `src/app/api` cuidam de cadastro, login e logout, além de criar, listar, atualizar e excluir tarefas. O servidor de desenvolvimento as executa junto com o app, e `npm run build` as exporta para Node.js, EAS Hosting, Vercel, Netlify ou Cloudflare.
 - **Um schema para os dois lados** — os formatos de requisição e de resposta são schemas do zod em `src/shared`; a API valida cada corpo com eles e o app interpreta cada resposta com eles.
-- **Contas feitas com cuidado** — hashes de senha PBKDF2 (600.000 iterações), tokens de sessão aleatórios guardados apenas como hashes SHA-256, tokens no Keychain do iOS e no Keystore do Android, cinco logins com falha por endereço a cada 15 minutos e a mesma resposta para um endereço errado e para uma senha errada.
+- **Contas feitas com cuidado** — hashes de senha PBKDF2 (600.000 iterações), tokens de sessão aleatórios guardados apenas como hashes SHA-256, tokens no Keychain do iOS e no Keystore do Android, limites de login e de cadastro por endereço de cliente que desaceleram uma conta atacada em vez de bloquear o dono dela e a mesma resposta para um endereço errado e para uma senha errada.
 - **Limitado desde o projeto** — corpos de requisição de 16 KiB lidos como stream, respostas de 1 MiB, 500 tarefas por conta, páginas de no máximo 100 itens, parâmetros de consulta inteiros estritos e tabelas de sessões e de limitação com teto: nenhuma requisição consegue fazer o servidor reter mais memória nem repetir um laço por mais tempo.
 - **Pronto para as pessoas** — temas claro e escuro, inglês e turco com chaves tipadas, login tolerante a falta de conexão, atualizações otimistas das tarefas, papéis e rótulos de acessibilidade e áreas de toque de 48 pontos.
-- **Testado do schema até a tela** — 219 testes do Jest, incluindo um que renderiza as telas reais contra os handlers reais da API no mesmo processo, além de fluxos do Maestro que executam o app compilado em um simulador de iOS.
+- **Testado do schema até a tela** — 250 testes do Jest, incluindo um que renderiza as telas reais contra os handlers reais da API no mesmo processo, além de fluxos do Maestro que executam o app compilado em um simulador de iOS.
 
 ## Início rápido
 
@@ -196,6 +196,10 @@ npm run lint && npm run typecheck && npm test && npm run build
 npm run ios          # development build on a simulator, then in another terminal:
 npm run e2e:ios      # Maestro flows (sign-up, tasks, settings, form validation)
 ```
+
+## Antes da produção
+
+A API mantém contas, sessões, tarefas e contadores de limite de requisições na memória de um único processo, dimensionada para uma demonstração: 1.000 contas e 100.000 tarefas. Uma reinicialização a esvazia, e várias instâncias do servidor não a compartilham. Antes de receber usuários reais, leve os armazenamentos para um banco de dados e os contadores de limite para um armazenamento compartilhado por todas as instâncias, repasse o endereço do cliente a partir do seu proxy e adicione a exclusão de conta e a redefinição de senha. O [guia de segurança](Documentation/Security.md#demo-server-or-production) lista cada passo.
 
 ## Roteiro
 

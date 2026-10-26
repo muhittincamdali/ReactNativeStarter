@@ -1,4 +1,4 @@
-<!-- i18n-source: README.md@7eb6261d552eca9666620ecbb98714f72b1ea22f status=reviewed -->
+<!-- i18n-source: README.md@467b99b41b2762a14345517b546a0b0320caf6ff status=reviewed -->
 <!-- brand:start -->
 
 <p align="center"><picture><source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/muhittincamdali/ReactNativeStarter/main/.github/brand/banner-dark.svg"><source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/muhittincamdali/ReactNativeStarter/main/.github/brand/banner-light.svg"><img src="https://raw.githubusercontent.com/muhittincamdali/ReactNativeStarter/main/.github/brand/banner-light.svg" alt="React Native Starter: An Expo app with its own API: accounts, a task list, light and dark themes, two languages and tests."></picture></p>
@@ -30,10 +30,10 @@ Eine Expo-App als Ausgangspunkt: Sie läuft auf iOS, Android und im Web und brin
 
 - **Ein Backend im selben Projekt** — die API-Routes in `src/app/api` übernehmen Registrierung, Anmeldung und Abmeldung sowie das Erstellen, Auflisten, Aktualisieren und Löschen von Aufgaben. Der Entwicklungsserver führt sie neben der App aus, und `npm run build` exportiert sie für Node.js, EAS Hosting, Vercel, Netlify oder Cloudflare.
 - **Ein Schema für beide Seiten** — Anfrage- und Antwortformate sind zod-Schemas in `src/shared`; die API validiert jeden Body damit, und die App parst jede Antwort damit.
-- **Konten mit Sorgfalt umgesetzt** — PBKDF2-Passwort-Hashes (600.000 Iterationen), zufällige Sitzungs-Token, die nur als SHA-256-Hashes gespeichert werden, Token im iOS Keychain und im Android Keystore, fünf fehlgeschlagene Anmeldungen pro Adresse in 15 Minuten und dieselbe Antwort bei falscher Adresse und falschem Passwort.
+- **Konten mit Sorgfalt umgesetzt** — PBKDF2-Passwort-Hashes (600.000 Iterationen), zufällige Sitzungs-Token, die nur als SHA-256-Hashes gespeichert werden, Token im iOS Keychain und im Android Keystore, Limits für Anmeldung und Registrierung pro Client-Adresse, die ein angegriffenes Konto verlangsamen, statt seinen Besitzer auszusperren und dieselbe Antwort bei falscher Adresse und falschem Passwort.
 - **Von Grund auf begrenzt** — 16 KiB große Request-Bodys, die als Stream gelesen werden, Antworten bis 1 MiB, 500 Aufgaben pro Konto, Seiten mit höchstens 100 Einträgen, strikte ganzzahlige Query-Parameter und in ihrer Größe begrenzte Sitzungs- und Limiter-Tabellen: Keine Anfrage kann den Server dazu bringen, mehr Speicher zu halten oder länger zu iterieren.
 - **Bereit für Menschen** — helles und dunkles Theme, Englisch und Türkisch mit typisierten Schlüsseln, offlinetolerante Anmeldung, optimistische Aufgaben-Updates, Accessibility-Rollen und -Labels sowie Touch-Ziele von 48 Punkten.
-- **Vom Schema bis zum Screen getestet** — 219 Jest-Tests, darunter einer, der die echten Screens gegen die echten API-Handler im selben Prozess rendert, dazu Maestro-Flows, die die gebaute App in einem iOS-Simulator ausführen.
+- **Vom Schema bis zum Screen getestet** — 250 Jest-Tests, darunter einer, der die echten Screens gegen die echten API-Handler im selben Prozess rendert, dazu Maestro-Flows, die die gebaute App in einem iOS-Simulator ausführen.
 
 ## Schnellstart
 
@@ -196,6 +196,10 @@ npm run lint && npm run typecheck && npm test && npm run build
 npm run ios          # development build on a simulator, then in another terminal:
 npm run e2e:ios      # Maestro flows (sign-up, tasks, settings, form validation)
 ```
+
+## Vor dem Produktiveinsatz
+
+Die API hält Konten, Sitzungen, Aufgaben und Rate-Limit-Zähler im Speicher eines einzigen Prozesses, ausgelegt für eine Demo: 1.000 Konten und 100.000 Aufgaben. Ein Neustart leert ihn, und mehrere Serverinstanzen teilen ihn nicht. Bevor echte Nutzer kommen, verlege die Speicher in eine Datenbank und die Rate-Limit-Zähler in einen Speicher, den alle Instanzen teilen, gib die Client-Adresse von deinem Proxy weiter und ergänze Kontolöschung und Passwort-Zurücksetzung. Der [Sicherheitsleitfaden](Documentation/Security.md#demo-server-or-production) führt jeden Schritt auf.
 
 ## Roadmap
 

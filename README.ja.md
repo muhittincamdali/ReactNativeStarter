@@ -1,4 +1,4 @@
-<!-- i18n-source: README.md@7eb6261d552eca9666620ecbb98714f72b1ea22f status=reviewed -->
+<!-- i18n-source: README.md@467b99b41b2762a14345517b546a0b0320caf6ff status=reviewed -->
 <!-- brand:start -->
 
 <p align="center"><picture><source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/muhittincamdali/ReactNativeStarter/main/.github/brand/banner-dark.svg"><source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/muhittincamdali/ReactNativeStarter/main/.github/brand/banner-light.svg"><img src="https://raw.githubusercontent.com/muhittincamdali/ReactNativeStarter/main/.github/brand/banner-light.svg" alt="React Native Starter: An Expo app with its own API: accounts, a task list, light and dark themes, two languages and tests."></picture></p>
@@ -30,10 +30,10 @@
 
 - **同じプロジェクトにバックエンドを同梱** — `src/app/api` の API routes が、サインアップ、サインイン、サインアウト、そしてタスクの作成、一覧、更新、削除を処理します。開発サーバーはこれらをアプリと一緒に実行し、`npm run build` は Node.js、EAS Hosting、Vercel、Netlify、Cloudflare 向けにエクスポートします。
 - **両側で共通の schema** — リクエストとレスポンスの形は `src/shared` の zod schema です。API はすべての本文をこれで検証し、アプリはすべての応答をこれでパースします。
-- **丁寧に作られたアカウント** — PBKDF2 によるパスワードハッシュ（反復 600,000 回）、SHA-256 ハッシュのみを保存するランダムなセッショントークン、iOS Keychain と Android Keystore に保存されるトークン、アドレスごとに 15 分間で失敗 5 回までのサインイン制限、そして誤ったアドレスと誤ったパスワードに対する同じ応答。
+- **丁寧に作られたアカウント** — PBKDF2 によるパスワードハッシュ（反復 600,000 回）、SHA-256 ハッシュのみを保存するランダムなセッショントークン、iOS Keychain と Android Keystore に保存されるトークン、攻撃されたアカウントの持ち主を締め出さずに速度を落とす、クライアントアドレスごとのサインインとサインアップの制限、そして誤ったアドレスと誤ったパスワードに対する同じ応答。
 - **設計段階で上限を設定** — ストリームとして読み込む 16 KiB のリクエスト本文、1 MiB の応答、アカウントあたり 500 件のタスク、最大 100 件のページ、厳密な整数のクエリパラメーター、上限付きのセッションテーブルとレートリミッターのテーブル。どのリクエストも、サーバーにより多くのメモリを保持させたり、より長くループさせたりすることはできません。
 - **実際の利用者のために** — ライトテーマとダークテーマ、型付きキーによる英語とトルコ語、オフラインに強いサインイン、楽観的（optimistic）なタスク更新、アクセシビリティのロールとラベル、48 ポイントのタッチターゲット。
-- **schema から画面までテスト済み** — 本物の画面を本物の API ハンドラーに対して同じプロセス内で描画するテストを含む 219 個の Jest テストに加え、ビルド済みアプリを iOS シミュレーターで実行する Maestro フローがあります。
+- **schema から画面までテスト済み** — 本物の画面を本物の API ハンドラーに対して同じプロセス内で描画するテストを含む 250 個の Jest テストに加え、ビルド済みアプリを iOS シミュレーターで実行する Maestro フローがあります。
 
 ## クイックスタート
 
@@ -196,6 +196,10 @@ npm run lint && npm run typecheck && npm test && npm run build
 npm run ios          # development build on a simulator, then in another terminal:
 npm run e2e:ios      # Maestro flows (sign-up, tasks, settings, form validation)
 ```
+
+## 本番環境の前に
+
+API はアカウント、セッション、タスク、レート制限のカウントを 1 つのプロセスのメモリに保持し、その規模はデモ向け（アカウント 1,000 件、タスク 100,000 件）です。再起動すると空になり、複数のサーバーインスタンス間では共有されません。実際のユーザーを迎える前に、ストアをデータベースへ、レート制限のカウントをすべてのインスタンスが共有するストアへ移し、プロキシからクライアントアドレスを渡し、アカウント削除とパスワードリセットを追加してください。各手順は[セキュリティガイド](Documentation/Security.md#demo-server-or-production)にあります。
 
 ## ロードマップ
 

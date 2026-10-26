@@ -1,4 +1,4 @@
-<!-- i18n-source: README.md@7eb6261d552eca9666620ecbb98714f72b1ea22f status=reviewed -->
+<!-- i18n-source: README.md@467b99b41b2762a14345517b546a0b0320caf6ff status=reviewed -->
 <!-- brand:start -->
 
 <p align="center"><picture><source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/muhittincamdali/ReactNativeStarter/main/.github/brand/banner-dark.svg"><source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/muhittincamdali/ReactNativeStarter/main/.github/brand/banner-light.svg"><img src="https://raw.githubusercontent.com/muhittincamdali/ReactNativeStarter/main/.github/brand/banner-light.svg" alt="React Native Starter: An Expo app with its own API: accounts, a task list, light and dark themes, two languages and tests."></picture></p>
@@ -30,10 +30,10 @@
 
 - **后端就在同一个项目里** — `src/app/api` 中的 API routes 负责注册、登录、登出，以及任务的创建、列表、更新和删除。开发服务器会把它们与应用一起运行，`npm run build` 则会将它们导出，可部署到 Node.js、EAS Hosting、Vercel、Netlify 或 Cloudflare。
 - **两端共用一套 schema** — 请求和响应的结构是 `src/shared` 中的 zod schema；API 用它们校验每个请求体，应用用它们解析每个响应。
-- **认真对待账号安全** — PBKDF2 密码哈希（600,000 次迭代）、仅以 SHA-256 哈希保存的随机会话 token、保存在 iOS Keychain 和 Android Keystore 中的 token、每个地址每 15 分钟最多允许五次失败登录，以及对错误地址和错误密码返回相同的响应。
+- **认真对待账号安全** — PBKDF2 密码哈希（600,000 次迭代）、仅以 SHA-256 哈希保存的随机会话 token、保存在 iOS Keychain 和 Android Keystore 中的 token、按客户端地址限制登录和注册：受到攻击的账号只会被放慢，账号主人不会被锁在外面，以及对错误地址和错误密码返回相同的响应。
 - **从设计上设限** — 以流的方式读取 16 KiB 的请求体、1 MiB 的响应、每个账号 500 个任务、每页最多 100 条、严格的整数查询参数，以及有上限的会话表和限流表：任何请求都无法让服务器占用更多内存或循环更长时间。
 - **为真实用户准备好** — 浅色和深色主题、带类型化键的英语和土耳其语、可容忍离线的登录、乐观式（optimistic）任务更新、无障碍角色与标签，以及 48 点的触控目标。
-- **从 schema 到屏幕都有测试** — 219 个 Jest 测试，其中一个会在同一进程内用真实的 API 处理程序渲染真实的屏幕；另外还有在 iOS 模拟器上运行已构建应用的 Maestro 流程。
+- **从 schema 到屏幕都有测试** — 250 个 Jest 测试，其中一个会在同一进程内用真实的 API 处理程序渲染真实的屏幕；另外还有在 iOS 模拟器上运行已构建应用的 Maestro 流程。
 
 ## 快速开始
 
@@ -196,6 +196,10 @@ npm run lint && npm run typecheck && npm test && npm run build
 npm run ios          # development build on a simulator, then in another terminal:
 npm run e2e:ios      # Maestro flows (sign-up, tasks, settings, form validation)
 ```
+
+## 上线生产之前
+
+API 把账号、会话、任务和限流计数都保存在单个进程的内存里，规模按演示设计：1,000 个账号和 100,000 个任务。重启会清空这些数据，多个服务器实例之间也不共享。在真实用户到来之前，请把这些存储迁移到数据库，把限流计数迁移到所有实例共享的存储，从你的代理传递客户端地址，并加上删除账号和重置密码的功能。[安全指南](Documentation/Security.md#demo-server-or-production)列出了每一步。
 
 ## 路线图
 

@@ -1,4 +1,4 @@
-<!-- i18n-source: README.md@7eb6261d552eca9666620ecbb98714f72b1ea22f status=reviewed -->
+<!-- i18n-source: README.md@467b99b41b2762a14345517b546a0b0320caf6ff status=reviewed -->
 <!-- brand:start -->
 
 <p align="center"><picture><source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/muhittincamdali/ReactNativeStarter/main/.github/brand/banner-dark.svg"><source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/muhittincamdali/ReactNativeStarter/main/.github/brand/banner-light.svg"><img src="https://raw.githubusercontent.com/muhittincamdali/ReactNativeStarter/main/.github/brand/banner-light.svg" alt="React Native Starter: An Expo app with its own API: accounts, a task list, light and dark themes, two languages and tests."></picture></p>
@@ -30,10 +30,10 @@ Una app de Expo para empezar: funciona en iOS, Android y la web, e incluye su pr
 
 - **Un backend en el mismo proyecto** — las API routes de `src/app/api` gestionan el registro, el inicio y el cierre de sesión, y la creación, el listado, la actualización y el borrado de tareas. El servidor de desarrollo las ejecuta junto a la app, y `npm run build` las exporta para Node.js, EAS Hosting, Vercel, Netlify o Cloudflare.
 - **Un solo schema para ambos lados** — las formas de las peticiones y las respuestas son schemas de zod en `src/shared`; la API valida cada cuerpo con ellos y la app interpreta cada respuesta con ellos.
-- **Cuentas hechas con cuidado** — hashes de contraseña PBKDF2 (600.000 iteraciones), tokens de sesión aleatorios guardados solo como hashes SHA-256, tokens en el Keychain de iOS y el Keystore de Android, cinco inicios de sesión fallidos por dirección cada 15 minutos y la misma respuesta para una dirección incorrecta y para una contraseña incorrecta.
+- **Cuentas hechas con cuidado** — hashes de contraseña PBKDF2 (600.000 iteraciones), tokens de sesión aleatorios guardados solo como hashes SHA-256, tokens en el Keychain de iOS y el Keystore de Android, límites de inicio de sesión y de registro por dirección de cliente que frenan una cuenta atacada en lugar de bloquear a su dueño y la misma respuesta para una dirección incorrecta y para una contraseña incorrecta.
 - **Con límites desde el diseño** — cuerpos de petición de 16 KiB leídos como flujo, respuestas de 1 MiB, 500 tareas por cuenta, páginas de 100 como máximo, parámetros de consulta enteros estrictos y tablas de sesiones y de limitación con tope: ninguna petición puede hacer que el servidor retenga más memoria ni que itere durante más tiempo.
 - **Lista para las personas** — temas claro y oscuro, inglés y turco con claves tipadas, inicio de sesión tolerante a la falta de conexión, actualizaciones optimistas de las tareas, roles y etiquetas de accesibilidad, y áreas táctiles de 48 puntos.
-- **Probada desde el schema hasta la pantalla** — 219 pruebas de Jest, entre ellas una que renderiza las pantallas reales contra los controladores reales de la API en el mismo proceso, además de flujos de Maestro que ejecutan la app compilada en un simulador de iOS.
+- **Probada desde el schema hasta la pantalla** — 250 pruebas de Jest, entre ellas una que renderiza las pantallas reales contra los controladores reales de la API en el mismo proceso, además de flujos de Maestro que ejecutan la app compilada en un simulador de iOS.
 
 ## Inicio rápido
 
@@ -196,6 +196,10 @@ npm run lint && npm run typecheck && npm test && npm run build
 npm run ios          # development build on a simulator, then in another terminal:
 npm run e2e:ios      # Maestro flows (sign-up, tasks, settings, form validation)
 ```
+
+## Antes de producción
+
+La API guarda las cuentas, las sesiones, las tareas y los contadores de límite de peticiones en la memoria de un solo proceso, dimensionada para una demo: 1.000 cuentas y 100.000 tareas. Un reinicio la vacía y varias instancias del servidor no la comparten. Antes de que lleguen usuarios reales, lleva los almacenes a una base de datos y los contadores de límite a un almacén que compartan todas las instancias, pasa la dirección del cliente desde tu proxy y añade el borrado de cuenta y el restablecimiento de contraseña. La [guía de seguridad](Documentation/Security.md#demo-server-or-production) enumera cada paso.
 
 ## Hoja de ruta
 

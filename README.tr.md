@@ -1,4 +1,4 @@
-<!-- i18n-source: README.md@7eb6261d552eca9666620ecbb98714f72b1ea22f status=reviewed -->
+<!-- i18n-source: README.md@467b99b41b2762a14345517b546a0b0320caf6ff status=reviewed -->
 <!-- brand:start -->
 
 <p align="center"><picture><source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/muhittincamdali/ReactNativeStarter/main/.github/brand/banner-dark.svg"><source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/muhittincamdali/ReactNativeStarter/main/.github/brand/banner-light.svg"><img src="https://raw.githubusercontent.com/muhittincamdali/ReactNativeStarter/main/.github/brand/banner-light.svg" alt="React Native Starter: An Expo app with its own API: accounts, a task list, light and dark themes, two languages and tests."></picture></p>
@@ -30,10 +30,10 @@ Başlangıç noktası olarak kullanabileceğiniz bir Expo uygulaması: iOS, Andr
 
 - **Aynı projede bir backend** — `src/app/api` içindeki API route'ları kayıt olma, giriş yapma, çıkış yapma ile görev oluşturma, listeleme, güncelleme ve silme işlemlerini yürütür. Geliştirme sunucusu bunları uygulamanın yanında çalıştırır; `npm run build` ise bunları Node.js, EAS Hosting, Vercel, Netlify veya Cloudflare için dışa aktarır.
 - **İki taraf için tek şema** — istek ve yanıt biçimleri `src/shared` içindeki zod şemalarıdır; API her gövdeyi bu şemalarla doğrular, uygulama da her yanıtı bu şemalarla ayrıştırır.
-- **Özenle yapılmış hesaplar** — PBKDF2 parola özetleri (600.000 yineleme), yalnızca SHA-256 özeti olarak saklanan rastgele oturum token'ları, iOS Keychain ve Android Keystore'da tutulan token'lar, adres başına 15 dakikada beş başarısız girişe izin veren sınır ve yanlış adres ile yanlış parola için aynı yanıt.
+- **Özenle yapılmış hesaplar** — PBKDF2 parola özetleri (600.000 yineleme), yalnızca SHA-256 özeti olarak saklanan rastgele oturum token'ları, iOS Keychain ve Android Keystore'da tutulan token'lar, saldırıya uğrayan hesabı sahibini dışarıda bırakmadan yavaşlatan, istemci adresi başına giriş ve kayıt sınırları ve yanlış adres ile yanlış parola için aynı yanıt.
 - **Tasarım gereği sınırlı** — akış olarak okunan 16 KiB'lık istek gövdeleri, 1 MiB'lık yanıtlar, hesap başına 500 görev, en fazla 100 kayıtlık sayfalar, katı tamsayı sorgu parametreleri ve üst sınırı olan oturum ve sınırlayıcı tabloları: hiçbir istek sunucuyu daha fazla bellek tutmaya ya da daha uzun süre döngüde kalmaya zorlayamaz.
 - **İnsanlar için hazır** — açık ve koyu temalar, tür güvenli anahtarlarla İngilizce ve Türkçe, çevrimdışı durumlara dayanıklı giriş, iyimser (optimistic) görev güncellemeleri, erişilebilirlik rolleri ve etiketleri ile 48 puntoluk dokunma hedefleri.
-- **Şemadan ekrana kadar test edilmiş** — gerçek ekranları gerçek API işleyicilerine karşı aynı süreçte çalıştıran bir test dahil 219 Jest testi, ayrıca derlenmiş uygulamayı bir iOS simülatöründe çalıştıran Maestro akışları.
+- **Şemadan ekrana kadar test edilmiş** — gerçek ekranları gerçek API işleyicilerine karşı aynı süreçte çalıştıran bir test dahil 250 Jest testi, ayrıca derlenmiş uygulamayı bir iOS simülatöründe çalıştıran Maestro akışları.
 
 ## Hızlı başlangıç
 
@@ -196,6 +196,10 @@ npm run lint && npm run typecheck && npm test && npm run build
 npm run ios          # development build on a simulator, then in another terminal:
 npm run e2e:ios      # Maestro flows (sign-up, tasks, settings, form validation)
 ```
+
+## Üretimden önce
+
+API; hesapları, oturumları, görevleri ve istek sınırı sayaçlarını tek bir sürecin belleğinde, bir demo için boyutlandırılmış olarak tutar: 1.000 hesap ve 100.000 görev. Yeniden başlatma bu belleği boşaltır ve birden çok sunucu örneği onu paylaşmaz. Gerçek kullanıcılar gelmeden önce depoları bir veritabanına, istek sınırı sayaçlarını tüm örneklerin paylaştığı bir depoya taşıyın, istemci adresini proxy'nizden iletin ve hesap silme ile parola sıfırlamayı ekleyin. [Güvenlik rehberi](Documentation/Security.md#demo-server-or-production) her adımı listeler.
 
 ## Yol haritası
 
