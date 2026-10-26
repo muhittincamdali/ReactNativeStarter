@@ -1,80 +1,57 @@
-# Contributing to SwiftRouter
+# Contributing
 
-First off, thank you for considering contributing to SwiftRouter! It's people like you that make SwiftRouter such a great tool.
+Thank you for helping. Bug reports, fixes, examples and clearer documentation are all welcome.
 
-## Code of Conduct
+## Set up
 
-This project and everyone participating in it is governed by our Code of Conduct. By participating, you are expected to uphold this code.
-
-## How Can I Contribute?
-
-### Reporting Bugs
-
-Before creating bug reports, please check the existing issues as you might find out that you don't need to create one. When you are creating a bug report, please include as many details as possible:
-
-- **Use a clear and descriptive title**
-- **Describe the exact steps which reproduce the problem**
-- **Provide specific examples to demonstrate the steps**
-- **Describe the behavior you observed after following the steps**
-- **Explain which behavior you expected to see instead and why**
-- **Include Swift version and OS version**
-
-### Suggesting Enhancements
-
-Enhancement suggestions are tracked as GitHub issues. When creating an enhancement suggestion, please include:
-
-- **Use a clear and descriptive title**
-- **Provide a step-by-step description of the suggested enhancement**
-- **Provide specific examples to demonstrate the steps**
-- **Describe the current behavior and explain which behavior you expected to see instead**
-- **Explain why this enhancement would be useful**
-
-### Pull Requests
-
-1. Fork the repo and create your branch from `main`
-2. If you've added code that should be tested, add tests
-3. If you've changed APIs, update the documentation
-4. Ensure the test suite passes
-5. Make sure your code follows the existing style (SwiftLint)
-6. Issue that pull request!
-
-## Development Setup
-
-```bash
-# Clone your fork
-git clone https://github.com/YOUR_USERNAME/SwiftRouter.git
-
-# Navigate to the project
-cd SwiftRouter
-
-# Open in Xcode
-open Package.swift
-
-# Run tests
-swift test
+```sh
+git clone https://github.com/<you>/ReactNativeStarter.git
+cd ReactNativeStarter
+npm ci
+npx expo start
 ```
 
-## Style Guide
+You need Node.js 22.14 or later. For the native app, `npm run ios` needs Xcode on macOS and
+`npm run android` needs Android Studio.
 
-- Follow [Swift API Design Guidelines](https://swift.org/documentation/api-design-guidelines/)
-- Use SwiftLint for code style consistency
-- Write meaningful commit messages following [Conventional Commits](https://www.conventionalcommits.org/)
-- Document public APIs with DocC-compatible comments
+## Before you open a pull request
 
-## Commit Messages
+Run what CI runs:
 
-We follow the [Conventional Commits](https://www.conventionalcommits.org/) specification:
+```sh
+npm run lint        # ESLint and Prettier (npm run format fixes formatting)
+npm run typecheck   # TypeScript, strict
+npm test            # Jest: app, server, shared and Examples/
+npm run build       # web app and API routes into dist/
+npm run docs        # TypeDoc; warnings fail the build
+```
 
-- `feat:` A new feature
-- `fix:` A bug fix
-- `docs:` Documentation only changes
-- `style:` Code style changes (formatting, semicolons, etc)
-- `refactor:` Code change that neither fixes a bug nor adds a feature
-- `test:` Adding missing tests
-- `chore:` Changes to the build process or auxiliary tools
+If you change a screen or a user journey, also run the Maestro flows on a simulator
+(`npm run ios`, then `npm run e2e:ios`), and refresh the screenshots with
+`npm run screenshots` when the screens look different (see `scripts/capture-screenshots.sh`).
 
-Example: `feat(deeplink): add universal link support`
+## Guidelines
 
-## License
+- **Tests with the change.** A bug fix starts with a test that fails without it. New API behaviour
+  gets a route test in `__tests__/server/routes.test.ts`; a new screen state gets a case in
+  `__tests__/app`.
+- **Shared shapes.** Request and response bodies are zod schemas in `src/shared/schemas.ts`, used
+  by both the API and the app. Validation messages are translation keys.
+- **Bounded work.** Every new list, cache, loop or body read needs an upper bound, named in
+  `src/shared/limits.ts`. Parse numbers from requests with `parseBoundedInteger()`.
+- **No logging of user data.** `no-console` is an error. Never log bodies, tokens, passwords or
+  `Authorization` headers.
+- **Translations.** Add every user-visible string to `src/lib/i18n/en.ts` and `tr.ts`.
+- **Accessibility.** Interactive elements need a role and a label; keep touch targets at least
+  44 points.
+- **Commits** follow [Conventional Commits](https://www.conventionalcommits.org/): `feat:`, `fix:`,
+  `docs:`, `test:`, `refactor:`, `ci:`, `chore:`. One change per commit, with a body that says
+  why.
 
-By contributing, you agree that your contributions will be licensed under the MIT License.
+## Reporting bugs
+
+Open an issue with the steps to reproduce, what you expected and what happened, the platform (iOS,
+Android or web, and its version) and the output of `npx expo-doctor`. Report security issues
+privately as described in [SECURITY.md](SECURITY.md).
+
+By contributing, you agree that your contributions are licensed under the [MIT License](LICENSE).

@@ -1,74 +1,24 @@
-name: Bug Report
-description: File a bug report to help us improve
-title: "[Bug]: "
-labels: ["bug", "triage"]
+name: Bug report
+description: Something in the app, the API or the tooling does not work as described.
+labels: ["bug"]
 body:
-  - type: markdown
-    attributes:
-      value: |
-        Thanks for taking the time to fill out this bug report!
-
   - type: textarea
-    id: description
+    id: steps
     attributes:
-      label: Bug Description
-      description: A clear and concise description of what the bug is.
-      placeholder: Tell us what happened
-    validations:
-      required: true
-
-  - type: textarea
-    id: reproduction
-    attributes:
-      label: Steps to Reproduce
-      description: Steps to reproduce the behavior
+      label: Steps to reproduce
+      description: From a fresh clone if you can. Include the request for an API problem.
       placeholder: |
-        1. Define route with...
-        2. Navigate to...
-        3. See unexpected behavior
+        1. npm ci && npx expo start
+        2. Press i, create an account
+        3. ...
     validations:
       required: true
-
   - type: textarea
     id: expected
     attributes:
-      label: Expected Behavior
-      description: A clear and concise description of what you expected to happen.
+      label: What you expected and what happened
     validations:
       required: true
-
-  - type: textarea
-    id: code
-    attributes:
-      label: Code Sample
-      description: If applicable, add a minimal code sample to reproduce the issue
-      render: swift
-
-  - type: dropdown
-    id: navigation-type
-    attributes:
-      label: Navigation Type
-      multiple: true
-      options:
-        - Push Navigation
-        - Modal Presentation
-        - Tab Navigation
-        - Deep Link
-        - Sheet/Popover
-    validations:
-      required: true
-
-  - type: dropdown
-    id: swift-version
-    attributes:
-      label: Swift Version
-      options:
-        - "5.9"
-        - "5.10"
-        - "6.0"
-    validations:
-      required: true
-
   - type: dropdown
     id: platform
     attributes:
@@ -76,32 +26,20 @@ body:
       multiple: true
       options:
         - iOS
-        - macOS
-        - tvOS
-        - watchOS
-        - visionOS
+        - Android
+        - Web
+        - API / server
+        - Tooling (tests, lint, build, docs)
     validations:
       required: true
-
-  - type: input
-    id: os-version
-    attributes:
-      label: OS Version
-      placeholder: "e.g., iOS 17.0, macOS 14.0"
-    validations:
-      required: true
-
   - type: textarea
-    id: logs
+    id: environment
     attributes:
-      label: Relevant Log Output
-      description: Please copy and paste any relevant log output
-      render: shell
-
-  - type: checkboxes
-    id: terms
+      label: Environment
+      description: Device or simulator and OS version, Node.js version, and the output of `npx expo-doctor`.
+      render: text
+    validations:
+      required: true
+  - type: markdown
     attributes:
-      label: Checklist
-      options:
-        - label: I have searched existing issues to ensure this bug hasn't been reported
-          required: true
+      value: Report security issues privately, as described in SECURITY.md, not here.
