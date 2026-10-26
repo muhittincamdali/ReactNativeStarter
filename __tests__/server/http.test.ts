@@ -114,6 +114,13 @@ describe('readJson', () => {
     expect(error).toMatchObject({ status: 400, code: 'invalid_json' });
   });
 
+  it('answers 422, without a stack overflow, for deeply nested JSON within the size limit', async () => {
+    const depth = 8_000;
+    const body = `{"title":${'['.repeat(depth)}${']'.repeat(depth)}}`;
+    const error = await failure(readJson(post(body), schema));
+    expect(error).toMatchObject({ status: 422, fields: { title: 'validation.invalid' } });
+  });
+
   it('answers 422 with field keys when the JSON does not match the schema', async () => {
     const error = await failure(readJson(post('{"title":5,"extra":1}'), schema));
     expect(error.status).toBe(422);
