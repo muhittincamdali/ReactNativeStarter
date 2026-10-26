@@ -29,13 +29,28 @@ Check it with `curl https://<your-domain>/api/health`, which answers `{"status":
 
 ### Client address
 
-The sign-in and sign-up limits count per client address, which the API reads from the
-`X-Client-Address` header (`src/server/client-address.ts`). `scripts/serve.mjs` sets it from the
-socket and removes any value the client sent. Behind a reverse proxy or a load balancer, the socket
-address is the proxy's, so every client would share one limit: change `setClientAddress()` in
-`scripts/serve.mjs` to take the address your proxy reports (for example the last entry it appends
-to `X-Forwarded-For`), and only from your proxy. On another adapter or host, set the header the
-same way before the request reaches the routes. Never pass on a value the client chose.
+The sign-in and sign-up limits count per client address (`src/server/client-address.ts`). The
+routes read it from the `X-Client-Address` header, but only when `X-Client-Address-Secret` carries
+the value of the `CLIENT_ADDRESS_SECRET` environment variable (32 characters or more), which a
+client cannot know. `scripts/serve.mjs` sets that variable to a random value at start, removes both
+headers from what the client sent and adds them with the socket's address.
+
+Behind a reverse proxy or a load balancer, the socket address is the proxy's, so every client would
+share one limit. List the proxy's addresses in `TRUST_PROXY`:
+
+```sh
+TRUST_PROXY=127.0.0.1,::1 npm run serve
+```
+
+On a connection from one of them, the client address is the nearest `X-Forwarded-For` entry that
+is not a listed proxy; entries further left, which the client could have written, are ignored.
+Connections from anywhere else keep the socket's address. The server prints the trusted proxies
+when it starts, and refuses to start if `TRUST_PROXY` lists something that is not an IP address.
+
+On another adapter or host, set `CLIENT_ADDRESS_SECRET` in the environment of the API and add both
+headers before the request reaches the routes, after removing any the client sent. Without the
+secret the API knows no client addresses: it slows sign-in and sign-up down for everyone together
+instead of limiting them per client, and writes one warning when it starts.
 
 ## 2. Keep the data
 

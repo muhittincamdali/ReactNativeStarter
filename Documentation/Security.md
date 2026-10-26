@@ -45,21 +45,30 @@ names the file to read and the test that checks it.
 - Every list has an upper bound: 1,000 accounts, 500 tasks per account and 100,000 in all, page
   size, sessions and the keys each rate limiter remembers (`src/shared/limits.ts`). A client
   cannot make the server hold more than these, or loop longer. A full rate-limit table never
-  forgets a key that is still counting; it refuses new keys until the oldest window ends
-  (`src/server/rate-limit.ts`, `stores.test.ts`).
-- Sign-in has three limits over 15 minutes (`src/server/accounts.ts`, `routes.test.ts`):
-  - one client address gets 30 attempts, for any addresses, then `429` with `Retry-After`;
-  - one client address gets 5 failures for one e-mail address, then `429` for that pair only;
-  - failures for one e-mail address from all clients together never lock it: after 5, each
-    attempt waits 250 ms, doubling up to 5 seconds, before the password is checked. Someone
-    trying wrong passwords for your address slows your sign-in down but cannot keep you out.
+  forgets a locked key and never refuses a new one: it makes room by dropping the key with the
+  fewest attempts that is not locked (`src/server/rate-limit.ts`, `stores.test.ts`).
+- Sign-in and sign-up go through one limiter, `AuthLimiter` (`src/server/auth-limiter.ts`,
+  `auth-limiter.test.ts`, `routes.test.ts`). Over 15 minutes, sign-in allows:
+  - 30 attempts per client address and 300 per network (an IPv6 /48), for any e-mail addresses,
+    then `429` with `Retry-After`;
+  - 5 failures per client address and e-mail address, then `429` for that pair only;
+  - for one e-mail address, attempts one at a time, at most 2 running or waiting (more get `429`
+    at once). After 5 failures from all clients together, each attempt waits 250 ms, doubling up
+    to 5 seconds, before the password is checked; after 50, clients that never signed in to the
+    account get `429`. A client that signed in to it before skips this layer, so someone trying
+    wrong passwords for your address cannot keep you out on your own device.
 
-  Each attempt is counted before the password is checked, so parallel requests cannot slip past.
-- One client address can sign up 10 times an hour, a taken address included.
-- The client address is the `X-Client-Address` header (`src/server/client-address.ts`).
-  `npm run serve` replaces any value a client sends with the socket's address; an IPv6 address
-  counts as its /64 network. Requests without the header, as in `npx expo start`, share one
-  client limit.
+  Sign-up allows 10 attempts per client address and 50 per network an hour, a taken address
+  included. Each attempt is counted before the password is hashed or checked, so parallel
+  requests cannot slip past; tests send 100 at once. A new account takes its place in the
+  account table before its password is hashed, so parallel sign-ups never pass the limit of
+  1,000 accounts.
+- The client address comes from the server in front of the routes (`src/server/client-address.ts`).
+  The routes read `X-Client-Address` only together with `X-Client-Address-Secret` carrying the
+  `CLIENT_ADDRESS_SECRET` environment variable; `npm run serve` sets a random secret at start and
+  the socket's address, or the address a proxy listed in `TRUST_PROXY` reports. An IPv6 address
+  counts as its /64 network. Without the secret, as in `npx expo start`, requests have no address:
+  they are slowed down together, never refused, and the server warns once when it starts.
 - Errors carry a stable code and no internal details; an unexpected error is a plain `500`.
 - The app reads at most 1 MiB of an answer, and one 15-second limit covers the request and the
   whole body. A declared `Content-Length` above 1 MiB is refused before the body is read; a body
@@ -88,8 +97,8 @@ Before real users arrive:
 - move accounts, sessions and tasks to a database ([Deploying](Deploying.md#2-keep-the-data));
 - move the rate-limit counters to a store all instances share, such as Redis, keeping the same
   rules: count before checking the password, never drop a key that is still counting;
-- behind a proxy or on another host, set `X-Client-Address` from the address your proxy reports
-  and drop any value the client sent ([Deploying](Deploying.md#client-address));
+- behind a reverse proxy, set `TRUST_PROXY` to its addresses; on another host, pass the client
+  address and the secret on yourself ([Deploying](Deploying.md#client-address));
 - add bot protection (a challenge after repeated failures, or a service in front of the API) if
   you expect attacks from many addresses at once: the limits here slow those down per address
   but do not stop them.

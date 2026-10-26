@@ -23,8 +23,8 @@ You can expect an answer within 7 days. Fixes are released as a patch version an
 ## In scope
 
 The sign-up, sign-in and session code (`src/server/accounts.ts`, `passwords.ts`, `sessions.ts`,
-`rate-limit.ts`, `client-address.ts`), request reading and validation (`src/server/http.ts`, `src/shared/`), the API
-routes in `src/app/api`, token storage in the app (`src/lib/secure-storage*.ts`, `session.ts`) and
+`auth-limiter.ts`, `rate-limit.ts`, `client-address.ts`), request reading and validation
+(`src/server/http.ts`, `src/shared/`), the API routes in `src/app/api`, token storage in the app (`src/lib/secure-storage*.ts`, `session.ts`) and
 `scripts/serve.mjs`.
 
 ## Out of scope

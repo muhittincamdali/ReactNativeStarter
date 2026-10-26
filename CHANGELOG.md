@@ -25,12 +25,16 @@ upgrade path from 1.x. Start from a new clone.
   stored only as SHA-256 hashes, 30-day expiry, and at most 10 sessions per account, where a new
   one replaces only that account's oldest; a full session table answers `503` instead of dropping
   another account's session.
-- Sign-in limits over 15 minutes that count parallel attempts: 30 attempts per client address and
-  5 failures per client and e-mail address (`429` with `Retry-After`), and for one e-mail address
-  from all clients a delay from 250 ms up to 5 s after 5 failures, never a lock. Sign-up allows 10
-  attempts per client address an hour. The client address is the `X-Client-Address` header, which
-  `npm run serve` sets from the socket. Full rate-limit tables refuse new keys instead of
-  forgetting live ones.
+- `AuthLimiter`, one limiter for sign-in and sign-up that counts parallel attempts. Sign-in over
+  15 minutes: 30 attempts per client address and 300 per IPv6 /48, 5 failures per client and
+  e-mail address (`429` with `Retry-After`), and for one e-mail address attempts one at a time, a
+  delay from 250 ms up to 5 s after 5 failures and `429` after 50 for clients that never signed
+  in to the account. Sign-up allows 10 attempts per client address and 50 per /48 an hour. Full
+  rate-limit tables drop the least-counted key that is not locked, so they neither refuse new keys
+  nor forget locked ones.
+- Client addresses for the limits: the routes trust `X-Client-Address` only with a secret that
+  `npm run serve` sets at start, and `TRUST_PROXY` reads `X-Forwarded-For` from listed proxies.
+  Without the secret, requests are slowed down together and the server warns once at start.
 - A task list with cursor paging, at most 500 tasks per account and 100,000 in all, and a
   `TaskRepository` interface with an in-memory implementation.
 - Shared zod schemas and named limits in `src/shared`, and `parseBoundedInteger()` for query
