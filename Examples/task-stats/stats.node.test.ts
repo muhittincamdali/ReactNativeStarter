@@ -1,6 +1,5 @@
 import { createApiClient } from '@/lib/api-client';
 import { createServerApp, setServerApp } from '@/server/app';
-import { UNKNOWN_CLIENT } from '@/server/client-address';
 
 import { fetchTaskStats } from './schema';
 import { GET } from './stats+api';
@@ -12,7 +11,7 @@ it('counts the account’s tasks through the route and the API client', async ()
   setServerApp(app);
   const { token, user } = await app.accounts.signUp(
     { name: 'Ada', email: 'ada@example.com', password: 'correct horse' },
-    UNKNOWN_CLIENT,
+    null,
   );
   for (let i = 0; i < 120; i += 1) app.tasks.create(user.id, `Task ${i}`);
   const first = app.tasks.list(user.id, { limit: 1 })!.items[0]!;

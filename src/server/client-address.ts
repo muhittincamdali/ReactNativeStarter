@@ -6,9 +6,10 @@
  * the socket's remote address. Behind a proxy or on another host, set the header from the address
  * that proxy reports and drop any value the client sent; a header a client can set is not a limit.
  *
- * Requests without the header share the key {@link UNKNOWN_CLIENT}, so they also share one
- * client limit. That is the case in `npx expo start`, which runs the routes without a way to pass
- * the address.
+ * A request without a readable header has no address (`null`). That is the case in
+ * `npx expo start`, which runs the routes without a way to pass the address. Such requests are
+ * not limited per client; the limiter slows them down instead (`src/server/auth-limiter.ts`), so
+ * they never lock each other out.
  *
  * @module
  */
@@ -16,15 +17,13 @@
 /** Header that carries the client's address, set by the server in front of the routes. */
 export const CLIENT_ADDRESS_HEADER = 'x-client-address';
 
-/** Key of every request whose address is missing or cannot be read. */
-export const UNKNOWN_CLIENT = 'unknown';
-
 const IPV4 = /^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/;
 const IPV4_MAPPED = /^::ffff:(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})$/i;
 const HEX_GROUP = /^[0-9a-f]{1,4}$/i;
 const IPV6_GROUPS = 8;
 const IPV6_CLIENT_GROUPS = 4;
 const IPV6_NETWORK_GROUPS = 3;
+const MAX_HEADER_LENGTH = 64;
 
 /**
  * Where a request comes from, as keys for the rate limits.
@@ -83,17 +82,9 @@ export function parseClientAddress(raw: string): ClientAddress | null {
   };
 }
 
-/**
- * A stable key for one client address: an IPv4 address as it is, an IPv4-mapped IPv6 address as
- * its IPv4 address, and an IPv6 address as its /64 network. `null` when it is neither.
- */
-export function normalizeAddress(raw: string): string | null {
-  return parseClientAddress(raw)?.client ?? null;
-}
-
-/** The rate-limit key of the request's client; {@link UNKNOWN_CLIENT} when it is not known. */
-export function clientKey(request: Request): string {
+/** The address of the request's client; `null` when it is not known. */
+export function clientAddress(request: Request): ClientAddress | null {
   const header = request.headers.get(CLIENT_ADDRESS_HEADER);
-  if (!header || header.length > 64) return UNKNOWN_CLIENT;
-  return normalizeAddress(header) ?? UNKNOWN_CLIENT;
+  if (!header || header.length > MAX_HEADER_LENGTH) return null;
+  return parseClientAddress(header);
 }

@@ -1,5 +1,5 @@
 import { getServerApp } from '@/server/app';
-import { clientKey } from '@/server/client-address';
+import { clientAddress } from '@/server/client-address';
 import { handle, json, readJson } from '@/server/http';
 import { signUpSchema } from '@/shared/schemas';
 
@@ -10,6 +10,6 @@ import { signUpSchema } from '@/shared/schemas';
 export function POST(request: Request): Promise<Response> {
   return handle(async () => {
     const input = await readJson(request, signUpSchema);
-    return json(await getServerApp().accounts.signUp(input, clientKey(request)), 201);
+    return json(await getServerApp().accounts.signUp(input, clientAddress(request)), 201);
   });
 }

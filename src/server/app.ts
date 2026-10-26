@@ -5,12 +5,16 @@
  * @module
  */
 import {
+  MAX_PENDING_SIGN_INS_PER_ACCOUNT,
   MAX_RATE_LIMIT_KEYS,
   MAX_SESSIONS,
   MAX_SESSIONS_PER_USER,
   MAX_SIGN_IN_ATTEMPTS_PER_CLIENT,
+  MAX_SIGN_IN_ATTEMPTS_PER_NETWORK,
   MAX_SIGN_IN_FAILURES,
+  MAX_SIGN_IN_FAILURES_PER_ACCOUNT,
   MAX_SIGN_UPS_PER_CLIENT,
+  MAX_SIGN_UPS_PER_NETWORK,
   MAX_STORED_TASKS,
   MAX_TASKS_PER_USER,
   MAX_USERS,
@@ -20,7 +24,7 @@ import {
 } from '@/shared/limits';
 
 import { AccountService } from './accounts';
-import { AttemptLimiter } from './rate-limit';
+import { AuthLimiter } from './auth-limiter';
 import { SessionStore } from './sessions';
 import { MemoryTaskRepository, type TaskRepository } from './tasks';
 
@@ -37,10 +41,13 @@ export interface ServerAppOptions {
   maxUsers?: number;
   maxTasksPerUser?: number;
   maxSignInFailures?: number;
+  maxSignInFailuresPerAccount?: number;
   maxSignInAttemptsPerClient?: number;
   maxSignUpsPerClient?: number;
   maxStoredTasks?: number;
-  /** Replaces the wait before a slowed-down sign-in. */
+  /** Keys each rate-limit table tracks. */
+  maxRateLimitKeys?: number;
+  /** Replaces the wait before a slowed-down attempt. */
   sleep?: (ms: number) => Promise<void>;
 }
 
@@ -53,32 +60,33 @@ export function createServerApp(options: ServerAppOptions = {}): ServerApp {
     maxTotal: MAX_SESSIONS,
     now,
   });
-  const limiter = (maxAttempts: number) =>
-    new AttemptLimiter({
-      maxAttempts,
-      windowMs: SIGN_IN_WINDOW_MS,
-      maxKeys: MAX_RATE_LIMIT_KEYS,
-      now,
-    });
-  const signInLimits = {
-    clients: limiter(options.maxSignInAttemptsPerClient ?? MAX_SIGN_IN_ATTEMPTS_PER_CLIENT),
-    pairs: limiter(options.maxSignInFailures ?? MAX_SIGN_IN_FAILURES),
-    // Counts only, never blocks: the count sets the delay of the next attempt.
-    accounts: limiter(Number.POSITIVE_INFINITY),
+  const shared = {
+    maxKeys: options.maxRateLimitKeys ?? MAX_RATE_LIMIT_KEYS,
+    now,
+    ...(options.sleep === undefined ? {} : { sleep: options.sleep }),
   };
+  const signInLimiter = new AuthLimiter({
+    ...shared,
+    windowMs: SIGN_IN_WINDOW_MS,
+    maxPerClient: options.maxSignInAttemptsPerClient ?? MAX_SIGN_IN_ATTEMPTS_PER_CLIENT,
+    maxPerNetwork: MAX_SIGN_IN_ATTEMPTS_PER_NETWORK,
+    maxFailuresPerPair: options.maxSignInFailures ?? MAX_SIGN_IN_FAILURES,
+    maxFailuresPerSubject: options.maxSignInFailuresPerAccount ?? MAX_SIGN_IN_FAILURES_PER_ACCOUNT,
+    maxPendingPerSubject: MAX_PENDING_SIGN_INS_PER_ACCOUNT,
+  });
+  const signUpLimiter = new AuthLimiter({
+    ...shared,
+    windowMs: SIGN_UP_WINDOW_MS,
+    maxPerClient: options.maxSignUpsPerClient ?? MAX_SIGN_UPS_PER_CLIENT,
+    maxPerNetwork: MAX_SIGN_UPS_PER_NETWORK,
+  });
   return {
     accounts: new AccountService({
       sessions,
-      signInLimits,
-      signUpLimiter: new AttemptLimiter({
-        maxAttempts: options.maxSignUpsPerClient ?? MAX_SIGN_UPS_PER_CLIENT,
-        windowMs: SIGN_UP_WINDOW_MS,
-        maxKeys: MAX_RATE_LIMIT_KEYS,
-        now,
-      }),
+      signInLimiter,
+      signUpLimiter,
       maxUsers: options.maxUsers ?? MAX_USERS,
       ...(options.iterations === undefined ? {} : { iterations: options.iterations }),
-      ...(options.sleep === undefined ? {} : { sleep: options.sleep }),
     }),
     tasks: new MemoryTaskRepository({
       maxPerUser: options.maxTasksPerUser ?? MAX_TASKS_PER_USER,

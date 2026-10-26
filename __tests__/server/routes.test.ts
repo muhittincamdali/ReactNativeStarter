@@ -26,11 +26,15 @@ function request(
   });
 }
 
+// Ada signs up from her own address, which her account then knows.
+const OWNER = '192.0.2.10';
+
 async function register(email = 'ada@example.com') {
   const response = await signUp(
     request('/api/auth/sign-up', {
       method: 'POST',
       body: { name: 'Ada', email, password: 'correct horse' },
+      client: OWNER,
     }),
   );
   expect(response.status).toBe(201);
@@ -132,6 +136,7 @@ describe('auth routes', () => {
         request('/api/auth/sign-in', {
           method: 'POST',
           body: { email: 'ada@example.com', password },
+          client: '203.0.113.9',
         }),
       );
     for (let i = 0; i < 3; i += 1) expect((await attempt('wrong')).status).toBe(401);
@@ -239,13 +244,136 @@ describe('auth routes', () => {
           request('/api/auth/sign-in', {
             method: 'POST',
             body: { email: 'ada@example.com', password: 'wrong' },
+            client: '203.0.113.9',
           }),
         ),
       ),
     );
     const statuses = results.map((response) => response.status);
-    expect(statuses.filter((status) => status === 401)).toHaveLength(3);
-    expect(statuses.filter((status) => status === 429)).toHaveLength(7);
+    // Two attempts for one address may run or wait at once; the others are refused at once.
+    expect(statuses.filter((status) => status === 401)).toHaveLength(2);
+    expect(statuses.filter((status) => status === 429)).toHaveLength(8);
+  });
+
+  it('checks 100 parallel sign-ins for one address from 100 clients one queue at a time', async () => {
+    await register();
+    const results = await Promise.all(
+      Array.from({ length: 100 }, (_, i) =>
+        signIn(
+          request('/api/auth/sign-in', {
+            method: 'POST',
+            body: { email: 'ada@example.com', password: `guess ${i}` },
+            client: `2001:db8:${i.toString(16)}::1`,
+          }),
+        ),
+      ),
+    );
+    const statuses = results.map((response) => response.status);
+    expect(statuses.filter((status) => status === 401)).toHaveLength(2);
+    expect(statuses.filter((status) => status === 429)).toHaveLength(98);
+    const owner = await signIn(
+      request('/api/auth/sign-in', {
+        method: 'POST',
+        body: { email: 'ada@example.com', password: 'correct horse' },
+        client: OWNER,
+      }),
+    );
+    expect(owner.status).toBe(200);
+  });
+
+  it('stops strangers at the hard limit for one address but lets the owner in', async () => {
+    setServerApp(
+      createServerApp({ iterations: 1_000, maxSignInFailuresPerAccount: 3, sleep: async () => {} }),
+    );
+    await register();
+    const attempt = (password: string, client: string) =>
+      signIn(
+        request('/api/auth/sign-in', {
+          method: 'POST',
+          body: { email: 'ada@example.com', password },
+          client,
+        }),
+      );
+    for (let i = 0; i < 3; i += 1)
+      expect((await attempt('wrong', `203.0.113.${i + 1}`)).status).toBe(401);
+    const stranger = await attempt('correct horse', '198.51.100.7');
+    expect(stranger.status).toBe(429);
+    expect(await stranger.json()).toMatchObject({ error: { code: 'too_many_attempts' } });
+    expect((await attempt('correct horse', OWNER)).status).toBe(200);
+  });
+
+  it('lets a new client sign in after 1,000 /64 networks of one /48 tried', async () => {
+    setServerApp(createServerApp({ iterations: 1_000, maxRateLimitKeys: 300 }));
+    await register();
+    const statuses: number[] = [];
+    for (let i = 0; i < 1_000; i += 1) {
+      const response = await signIn(
+        request('/api/auth/sign-in', {
+          method: 'POST',
+          body: { email: `spray-${i}@example.com`, password: 'wrong' },
+          client: `2001:db8:7:${i.toString(16)}::1`,
+        }),
+      );
+      statuses.push(response.status);
+    }
+    expect(statuses.filter((status) => status === 401)).toHaveLength(300);
+    expect(statuses.filter((status) => status === 429)).toHaveLength(700);
+    const fresh = await signIn(
+      request('/api/auth/sign-in', {
+        method: 'POST',
+        body: { email: 'ada@example.com', password: 'correct horse' },
+        client: '2001:db8:8::1',
+      }),
+    );
+    expect(fresh.status).toBe(200);
+  });
+
+  it('lets a new person sign up while many networks fill the sign-up table', async () => {
+    setServerApp(createServerApp({ iterations: 1_000, maxRateLimitKeys: 50 }));
+    await register('taken@example.com');
+    for (let i = 0; i < 500; i += 1) {
+      const response = await signUp(
+        request('/api/auth/sign-up', {
+          method: 'POST',
+          body: { name: 'Spray', email: 'taken@example.com', password: 'correct horse' },
+          client: `2001:db8:${i.toString(16)}::1`,
+        }),
+      );
+      expect(response.status).toBe(409);
+    }
+    const response = await signUp(
+      request('/api/auth/sign-up', {
+        method: 'POST',
+        body: { name: 'Grace', email: 'grace@example.com', password: 'correct horse' },
+        client: '198.51.100.7',
+      }),
+    );
+    expect(response.status).toBe(201);
+  });
+
+  it('slows down requests without a client address instead of locking them out', async () => {
+    const delays: number[] = [];
+    setServerApp(
+      createServerApp({
+        iterations: 1_000,
+        maxSignInFailures: 1,
+        maxSignInAttemptsPerClient: 1,
+        sleep: async (ms) => {
+          delays.push(ms);
+        },
+      }),
+    );
+    await register();
+    const attempt = (password: string) =>
+      signIn(
+        request('/api/auth/sign-in', {
+          method: 'POST',
+          body: { email: 'ada@example.com', password },
+        }),
+      );
+    for (let i = 0; i < 8; i += 1) expect((await attempt('wrong')).status).toBe(401);
+    expect((await attempt('correct horse')).status).toBe(200);
+    expect(delays).toEqual([250, 500, 1000, 2000]);
   });
 
   it('answers 401 for a missing, malformed or unknown token', async () => {

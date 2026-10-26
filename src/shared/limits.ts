@@ -42,6 +42,8 @@ export const MAX_STORED_TASKS = 100_000;
 
 /** Sign-ups allowed from one client address within {@link SIGN_UP_WINDOW_MS}. */
 export const MAX_SIGN_UPS_PER_CLIENT = 10;
+/** Sign-ups allowed from one IPv6 /48 network within {@link SIGN_UP_WINDOW_MS}. */
+export const MAX_SIGN_UPS_PER_NETWORK = 50;
 export const SIGN_UP_WINDOW_MS = 60 * 60 * 1000;
 
 /** Sessions kept per account; a new session replaces the account's oldest. */
@@ -65,9 +67,29 @@ export const MAX_SIGN_IN_FAILURES = 5;
 /** Sign-in attempts allowed from one client address in a window, for any e-mail addresses. */
 export const MAX_SIGN_IN_ATTEMPTS_PER_CLIENT = 30;
 
+/** Sign-in attempts allowed from one IPv6 /48 network in a window, for all its clients. */
+export const MAX_SIGN_IN_ATTEMPTS_PER_NETWORK = 300;
+
+/**
+ * Failed sign-ins for one e-mail address in a window, from all clients that never signed in to
+ * the account; further attempts from those clients get `429`. A client that signed in to the
+ * account before is not held back by this limit.
+ */
+export const MAX_SIGN_IN_FAILURES_PER_ACCOUNT = 50;
+
+/**
+ * Sign-ins for one e-mail address that may run or wait at once; they are checked one at a time.
+ * With {@link MAX_SIGN_IN_DELAY_MS}, the last one waits at most about 10 seconds.
+ */
+export const MAX_PENDING_SIGN_INS_PER_ACCOUNT = 2;
+
+/** Client addresses each account remembers as ones it signed in from. */
+export const MAX_KNOWN_CLIENTS_PER_USER = 5;
+
 /**
  * Failed sign-ins for one e-mail address, from all clients together, before each further attempt
- * waits: {@link SIGN_IN_DELAY_BASE_MS}, doubling up to {@link MAX_SIGN_IN_DELAY_MS}.
+ * waits: {@link SIGN_IN_DELAY_BASE_MS}, doubling up to {@link MAX_SIGN_IN_DELAY_MS}. Requests
+ * without a client address are slowed down the same way, counted together.
  */
 export const SIGN_IN_FAILURES_BEFORE_DELAY = 5;
 export const SIGN_IN_DELAY_BASE_MS = 250;

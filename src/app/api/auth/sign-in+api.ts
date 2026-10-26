@@ -1,5 +1,5 @@
 import { getServerApp } from '@/server/app';
-import { clientKey } from '@/server/client-address';
+import { clientAddress } from '@/server/client-address';
 import { handle, json, readJson } from '@/server/http';
 import { signInSchema } from '@/shared/schemas';
 
@@ -10,6 +10,6 @@ import { signInSchema } from '@/shared/schemas';
 export function POST(request: Request): Promise<Response> {
   return handle(async () => {
     const input = await readJson(request, signInSchema);
-    return json(await getServerApp().accounts.signIn(input, clientKey(request)));
+    return json(await getServerApp().accounts.signIn(input, clientAddress(request)));
   });
 }
